@@ -4,7 +4,7 @@ import WebKit
 @MainActor
 private final class CopilotLoginController: ObservableObject {
     let webView: WKWebView
-    private let targetURL = URL(string: "https://github.com/settings/billing/premium_requests_usage")!
+    private let targetURL = URL(string: "https://github.com/settings/copilot/features")!
 
     init() {
         let configuration = WKWebViewConfiguration()

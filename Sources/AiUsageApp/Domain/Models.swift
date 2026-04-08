@@ -11,7 +11,7 @@ enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable
         case .codex:
             URL(string: "https://chatgpt.com/codex/cloud/settings/usage")!
         case .copilot:
-            URL(string: "https://github.com/settings/billing")!
+            URL(string: "https://github.com/settings/copilot/features")!
         }
     }
 

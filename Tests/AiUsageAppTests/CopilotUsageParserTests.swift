@@ -106,4 +106,27 @@ struct CopilotUsageParserTests {
         #expect(metric.totalValue == 100)
         #expect(metric.remainingValue == 60)
     }
+
+    @Test
+    func parsesCopilotFeaturesProgressBarPercentFromHtml() throws {
+        let now = Date(timeIntervalSince1970: 1_775_000_000)
+        let text = "Premium requests 28.5%"
+        let html = """
+        <div>
+          <span>Premium requests</span>
+          <div>28.5%</div>
+          <p id="copilot_overages_progress_bar">
+            <span class="Progress Progress--large">
+              <span style="width: 28.5%;" class="Progress-item color-bg-success-emphasis"></span>
+            </span>
+          </p>
+        </div>
+        """
+
+        let metric = try CopilotHTMLParser.parseMetric(text: text, html: html, now: now)
+
+        #expect(abs((metric.remainingFraction ?? 0) - 0.715) < 0.000_1)
+        #expect(metric.totalValue == 100)
+        #expect(abs((metric.remainingValue ?? 0) - 71.5) < 0.000_1)
+    }
 }

@@ -49,6 +49,14 @@ enum CopilotHTMLParser {
     private static func parsePercentageMetric(in source: String, now: Date) -> UsageMetric? {
         let normalized = normalize(source)
 
+        if let usedString = firstGroup(
+            pattern: #"(?i)copilot_overages_progress_bar.{0,400}?width:\s*(\d+(?:\.\d+)?)%"#,
+            in: normalized
+        ) {
+            let usedFraction = min(max(parseNumber(usedString) / 100, 0), 1)
+            return buildMetric(remainingFraction: max(1 - usedFraction, 0), now: now)
+        }
+
         if let remainingString = firstGroup(
             pattern: #"(?i)(\d+(?:\.\d+)?)\s*%\s+remaining.{0,80}?premium requests?"#,
             in: normalized
