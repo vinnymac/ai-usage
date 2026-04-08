@@ -277,6 +277,17 @@ struct SettingsView: View {
             Text("\(environment.localizer.text(.appVersion)) \(AppMetadata.version)")
                 .font(.body)
                 .foregroundStyle(.secondary)
+
+            Divider()
+                .padding(.vertical, 4)
+
+            Text(environment.localizer.text(.legalSection))
+                .font(.headline)
+
+            Text(environment.localizer.text(.logoDisclaimer))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(28)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

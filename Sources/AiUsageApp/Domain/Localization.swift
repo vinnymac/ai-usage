@@ -63,6 +63,8 @@ enum L10nKey: String {
     case noLogs
     case logsCopied
     case appVersion
+    case legalSection
+    case logoDisclaimer
     case quitApp
     case menuActionRefresh
     case menuActionSettings
@@ -151,6 +153,8 @@ struct Localizer {
             .noLogs: "No logs yet",
             .logsCopied: "Logs copied to the clipboard.",
             .appVersion: "Version",
+            .legalSection: "Legal",
+            .logoDisclaimer: "The OpenAI logo and GitHub Copilot logo are used only to identify their respective services. All trademarks, service marks, and logos are the property of their respective owners. This app is independent and is not affiliated with, endorsed by, or sponsored by OpenAI or GitHub.",
             .quitApp: "Quit",
             .menuActionRefresh: "Refresh",
             .menuActionSettings: "Settings",
@@ -224,6 +228,8 @@ struct Localizer {
             .noLogs: "Brak logów",
             .logsCopied: "Logi skopiowano do schowka.",
             .appVersion: "Wersja",
+            .legalSection: "Informacje prawne",
+            .logoDisclaimer: "Logo OpenAI i logo GitHub Copilot są używane wyłącznie w celu identyfikacji odpowiednich usług. Wszystkie znaki towarowe, znaki usługowe i logo należą do ich właścicieli. Ta aplikacja jest niezależna i nie jest powiązana z OpenAI ani GitHub, ani przez nie sponsorowana lub rekomendowana.",
             .quitApp: "Zakończ",
             .menuActionRefresh: "Odśwież",
             .menuActionSettings: "Ustawienia",

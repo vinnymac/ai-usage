@@ -105,6 +105,10 @@ The alert evaluator uses hysteresis and re-arming so the app does not spam notif
 - If a metric has no known reset timestamp, the panel omits the reset line instead of inventing one.
 - Right-click the menu bar item for direct `Refresh`, `Settings`, and `Quit` actions.
 
+## Legal
+
+The OpenAI logo and GitHub Copilot logo are used only to identify their respective services. All trademarks, service marks, and logos are the property of their respective owners. This project is independent and is not affiliated with, endorsed by, or sponsored by OpenAI or GitHub.
+
 ## Docs
 
 - See `Docs/ARCHITECTURE.md` for the current package layout and runtime design.
