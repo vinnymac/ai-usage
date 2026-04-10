@@ -21,7 +21,16 @@ struct UsagePanelView: View {
         }
         .padding(16)
         .frame(width: 420)
-        .background(.regularMaterial)
+        .background(backgroundStyle)
+    }
+
+    private var backgroundStyle: AnyShapeStyle {
+        switch environment.settings.preferences.usagePanelBackgroundStyle {
+        case .regularMaterial:
+            return AnyShapeStyle(.regularMaterial)
+        case .solidAdaptive:
+            return AnyShapeStyle(Color(nsColor: .windowBackgroundColor))
+        }
     }
 
     private var header: some View {
@@ -38,28 +47,10 @@ struct UsagePanelView: View {
     }
 
     private func metricsSection(referenceDate: Date) -> some View {
-        let panelProviders = environment.settings.preferences.visiblePanelProviders
-        return VStack(alignment: .leading, spacing: 18) {
-            if panelProviders.contains(.codex) {
-                providerSection(provider: .codex, metrics: [.codexFiveHour, .codexWeekly, .codexCredits], referenceDate: referenceDate)
+        VStack(alignment: .leading, spacing: 18) {
+            ForEach(visiblePanelProviders) { provider in
+                providerSection(provider: provider, metrics: metrics(for: provider), referenceDate: referenceDate)
             }
-            if panelProviders.contains(.copilot) {
-                providerSection(provider: .copilot, metrics: [.copilotMonthly], referenceDate: referenceDate)
-            }
-            if panelProviders.contains(.claudeCode) {
-                providerSection(provider: .claudeCode, metrics: claudeCodeVisibleMetrics, referenceDate: referenceDate)
-            }
-        }
-    }
-
-    private var claudeCodeVisibleMetrics: [UsageMetricKind] {
-        let snapshot = environment.snapshot(for: .claudeCode)
-        // Show API path metrics if daily cost has a value, otherwise show session path metrics
-        let hasAPIData = snapshot?.metric(.claudeCodeDailyCost)?.remainingValue != nil
-        if hasAPIData {
-            return [.claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet]
-        } else {
-            return [.claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet]
         }
     }
 
@@ -99,7 +90,7 @@ struct UsagePanelView: View {
 
             providerIssue(provider: provider, snapshot: snapshot)
 
-            if environment.currentAuthState(for: provider) != .signedOut {
+            if shouldShowMetrics(for: snapshot) {
                 ForEach(metrics, id: \.self) { kind in
                     metricCard(kind: kind, referenceDate: referenceDate)
                 }
@@ -158,6 +149,10 @@ struct UsagePanelView: View {
             return environment.localizer.text(.codexWeekly)
         case .codexCredits:
             return environment.localizer.text(.codexCredits)
+        case .claudeFiveHour:
+            return environment.localizer.text(.claudeFiveHour)
+        case .claudeWeekly:
+            return environment.localizer.text(.claudeWeekly)
         case .copilotMonthly:
             return environment.localizer.text(.copilotMonthly)
         case .claudeCodeFiveHour:
@@ -225,9 +220,30 @@ struct UsagePanelView: View {
     }
 
     private var shouldShowAuthenticationCallout: Bool {
-        ProviderID.allCases
-            .filter { environment.settings.preferences.visibleProviders.contains($0) }
+        visiblePanelProviders
             .allSatisfy { environment.currentAuthState(for: $0) == .signedOut }
+    }
+
+    private var visiblePanelProviders: [ProviderID] {
+        environment.settings.preferences.visiblePanelProviders
+            .sorted { $0.rawValue < $1.rawValue }
+    }
+
+    private func metrics(for provider: ProviderID) -> [UsageMetricKind] {
+        switch provider {
+        case .claude:
+            return [.claudeFiveHour, .claudeWeekly]
+        case .codex:
+            return [.codexFiveHour, .codexWeekly, .codexCredits]
+        case .copilot:
+            return [.copilotMonthly]
+        case .claudeCode:
+            let snapshot = environment.snapshot(for: .claudeCode)
+            let hasAPIData = snapshot?.metric(.claudeCodeDailyCost)?.remainingValue != nil
+            return hasAPIData
+                ? [.claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet]
+                : [.claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet]
+        }
     }
 
     @ViewBuilder
@@ -252,9 +268,13 @@ struct UsagePanelView: View {
         switch kind {
         case .codexCredits, .claudeCodeDailyCost, .claudeCodeWeeklyCost:
             return "-"
-        case .codexFiveHour, .codexWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet:
+        case .codexFiveHour, .codexWeekly, .claudeFiveHour, .claudeWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet:
             return "-%"
         }
+    }
+
+    private func shouldShowMetrics(for snapshot: ProviderSnapshot?) -> Bool {
+        snapshot?.fetchState != .missingAuth
     }
 
     private var resetDateFormatter: ResetDateTextFormatter {

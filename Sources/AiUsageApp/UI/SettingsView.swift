@@ -4,9 +4,7 @@ import AppKit
 struct SettingsView: View {
     @ObservedObject var environment: AppEnvironment
     @ObservedObject private var logStore: LogStore
-    @State private var copilotTokenDraft = ""
-    @State private var showCodexLoginSheet = false
-    @State private var showCopilotLoginSheet = false
+    @State private var isSigningInToCopilot = false
     @State private var showClaudeCodeLoginSheet = false
     @State private var statusMessage: String?
 
@@ -58,18 +56,6 @@ struct SettingsView: View {
         }
         .padding(20)
         .frame(minWidth: 640, minHeight: 500)
-        .sheet(isPresented: $showCodexLoginSheet) {
-            CodexLoginSheet(localizer: environment.localizer) { session in
-                try environment.saveCodexSession(session)
-                await environment.refreshNow()
-            }
-        }
-        .sheet(isPresented: $showCopilotLoginSheet) {
-            CopilotLoginSheet(localizer: environment.localizer) { session in
-                try environment.saveCopilotSession(session)
-                await environment.refreshNow()
-            }
-        }
         .sheet(isPresented: $showClaudeCodeLoginSheet) {
             ClaudeCodeLoginSheet(
                 localizer: environment.localizer,
@@ -84,26 +70,39 @@ struct SettingsView: View {
     private var accountsTab: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                providerAccountGroup(provider: .codex) {
-                    Text(environment.localizer.text(.codexSessionHelp))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                providerAccountGroup(provider: .claude) {
+                    if environment.currentAuthState(for: .claude) == .signedOut {
+                        Text(environment.localizer.text(.claudeSessionHelp))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
 
-                    HStack {
-                        if environment.currentAuthState(for: .codex) == .signedOut {
-                            Button(environment.localizer.text(.signInToCodex)) {
-                                showCodexLoginSheet = true
-                            }
-                        } else {
-                            Button(environment.localizer.text(.signOut)) {
-                                do {
-                                    try environment.clearAuth(for: .codex)
-                                    statusMessage = nil
-                                } catch {
-                                    statusMessage = error.localizedDescription
-                                }
+                        Button(environment.localizer.text(.refreshNow)) {
+                            Task {
+                                await environment.refreshNow()
                             }
                         }
+                    } else {
+                        Text(environment.localizer.text(.claudeCliConnected))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                providerAccountGroup(provider: .codex) {
+                    if environment.currentAuthState(for: .codex) == .signedOut {
+                        Text(environment.localizer.text(.codexSessionHelp))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+
+                        Button(environment.localizer.text(.refreshNow)) {
+                            Task {
+                                await environment.refreshNow()
+                            }
+                        }
+                    } else {
+                        Text(environment.localizer.text(.codexCliConnected))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
@@ -185,38 +184,41 @@ struct SettingsView: View {
                 }
 
                 providerAccountGroup(provider: .copilot) {
+                    let copilotIsSignedOut = environment.currentAuthState(for: .copilot) == .signedOut
+
                     Text(environment.localizer.text(.copilotPatHelp))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
-                    Text(environment.localizer.text(.copilotPlanHelp))
+                    Text(environment.localizer.text(copilotIsSignedOut ? .copilotPlanHelp : .copilotConnectedHelp))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
                     HStack {
-                        if environment.currentAuthState(for: .copilot) == .signedOut {
-                            SecureField(environment.localizer.text(.copilotToken), text: $copilotTokenDraft)
-                                .textFieldStyle(.roundedBorder)
-
-                            Button(environment.localizer.text(.saveAndRefresh)) {
+                        if copilotIsSignedOut {
+                            Button(environment.localizer.text(.signInToGitHubCopilot)) {
                                 Task {
+                                    isSigningInToCopilot = true
+                                    defer { isSigningInToCopilot = false }
+
                                     do {
-                                        try environment.saveCopilotToken(copilotTokenDraft)
-                                        copilotTokenDraft = ""
-                                        statusMessage = environment.localizer.text(.tokenSaved)
+                                        try await environment.signInToCopilot { userCode in
+                                            statusMessage = String(
+                                                format: environment.localizer.text(.copilotDeviceFlowWaiting),
+                                                userCode
+                                            )
+                                        }
+                                        statusMessage = environment.localizer.text(.copilotDeviceFlowConnected)
                                         await environment.refreshNow()
                                     } catch {
                                         statusMessage = error.localizedDescription
                                     }
                                 }
                             }
-
-                            Button(environment.localizer.text(.signInToGitHubCopilot)) {
-                                showCopilotLoginSheet = true
-                            }
+                            .disabled(isSigningInToCopilot)
                         }
 
-                        if environment.currentAuthState(for: .copilot) != .signedOut {
+                        if copilotIsSignedOut == false {
                             Button(environment.localizer.text(.signOut)) {
                                 do {
                                     try environment.clearAuth(for: .copilot)
@@ -252,29 +254,42 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.menu)
 
-                    Picker(environment.localizer.text(.codexMenuBarMetric), selection: $environment.settings.preferences.codexMenuBarMetric) {
-                        Text(environment.localizer.text(.codexMenuBarMetricWeekly)).tag(CodexMenuBarMetric.weekly)
-                        Text(environment.localizer.text(.codexMenuBarMetricFiveHour)).tag(CodexMenuBarMetric.fiveHour)
+                    Picker(environment.localizer.text(.usagePanelBackground), selection: $environment.settings.preferences.usagePanelBackgroundStyle) {
+                        Text(environment.localizer.text(.usagePanelBackgroundRegularMaterial)).tag(UsagePanelBackgroundStyle.regularMaterial)
+                        Text(environment.localizer.text(.usagePanelBackgroundSolidAdaptive)).tag(UsagePanelBackgroundStyle.solidAdaptive)
                     }
                     .pickerStyle(.menu)
 
                     Picker(environment.localizer.text(.claudeMenuBarMetric), selection: $environment.settings.preferences.claudeMenuBarMetric) {
+                        Text(environment.localizer.text(.claudeMenuBarMetricWeekly)).tag(ClaudeMenuBarMetric.weekly)
                         Text(environment.localizer.text(.claudeMenuBarMetricFiveHour)).tag(ClaudeMenuBarMetric.fiveHour)
                         Text(environment.localizer.text(.claudeMenuBarMetricWeeklyQuota)).tag(ClaudeMenuBarMetric.weeklyQuota)
                         Text(environment.localizer.text(.claudeMenuBarMetricDailyCost)).tag(ClaudeMenuBarMetric.dailyCost)
                     }
                     .pickerStyle(.menu)
+
+                    Picker(environment.localizer.text(.codexMenuBarMetric), selection: $environment.settings.preferences.codexMenuBarMetric) {
+                        Text(environment.localizer.text(.codexMenuBarMetricWeekly)).tag(CodexMenuBarMetric.weekly)
+                        Text(environment.localizer.text(.codexMenuBarMetricFiveHour)).tag(CodexMenuBarMetric.fiveHour)
+                    }
+                    .pickerStyle(.menu)
                 }
 
                 settingsSection(title: environment.localizer.text(.menuBarIcons)) {
-                    ForEach(ProviderID.allCases) { provider in
-                        Toggle(provider.displayName(localizer: environment.localizer), isOn: visibleProviderBinding(provider))
+                    ForEach(ProviderID.allCases.sorted { $0.rawValue < $1.rawValue }) { provider in
+                        Toggle(
+                            provider.displayName(localizer: environment.localizer),
+                            isOn: visibilityBinding(for: provider, keyPath: \.visibleProviders)
+                        )
                     }
                 }
 
-                settingsSection(title: environment.localizer.text(.usagePanelSections)) {
-                    ForEach(ProviderID.allCases) { provider in
-                        Toggle(provider.displayName(localizer: environment.localizer), isOn: visiblePanelProviderBinding(provider))
+                settingsSection(title: environment.localizer.text(.usagePanelProviders)) {
+                    ForEach(ProviderID.allCases.sorted { $0.rawValue < $1.rawValue }) { provider in
+                        Toggle(
+                            provider.displayName(localizer: environment.localizer),
+                            isOn: visibilityBinding(for: provider, keyPath: \.visiblePanelProviders)
+                        )
                     }
                 }
             }
@@ -425,19 +440,26 @@ struct SettingsView: View {
         }
     }
 
-    private func visibleProviderBinding(_ provider: ProviderID) -> Binding<Bool> {
+    private func visibilityBinding(
+        for provider: ProviderID,
+        keyPath: WritableKeyPath<DisplayPreferences, Set<ProviderID>>
+    ) -> Binding<Bool> {
         Binding(
             get: {
-                environment.settings.preferences.visibleProviders.contains(provider)
+                environment.settings.preferences[keyPath: keyPath].contains(provider)
             },
             set: { isVisible in
-                var updated = environment.settings.preferences.visibleProviders
+                var preferences = environment.settings.preferences
+                var updated = preferences[keyPath: keyPath]
+
                 if isVisible {
                     updated.insert(provider)
                 } else if updated.count > 1 {
                     updated.remove(provider)
                 }
-                environment.settings.preferences.visibleProviders = updated
+
+                preferences[keyPath: keyPath] = updated
+                environment.settings.preferences = preferences
             }
         )
     }

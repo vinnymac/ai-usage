@@ -177,6 +177,10 @@ final class NotificationService {
             return "Codex weekly window"
         case .codexCredits:
             return "Codex credits"
+        case .claudeFiveHour:
+            return "Claude 5-hour window"
+        case .claudeWeekly:
+            return "Claude 7-day window"
         case .copilotMonthly:
             return "GitHub Copilot monthly quota"
         case .claudeCodeFiveHour:
