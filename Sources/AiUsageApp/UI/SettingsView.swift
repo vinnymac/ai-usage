@@ -70,24 +70,6 @@ struct SettingsView: View {
     private var accountsTab: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                providerAccountGroup(provider: .claude) {
-                    if environment.currentAuthState(for: .claude) == .signedOut {
-                        Text(environment.localizer.text(.claudeSessionHelp))
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-
-                        Button(environment.localizer.text(.refreshNow)) {
-                            Task {
-                                await environment.refreshNow()
-                            }
-                        }
-                    } else {
-                        Text(environment.localizer.text(.claudeCliConnected))
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
                 providerAccountGroup(provider: .codex) {
                     if environment.currentAuthState(for: .codex) == .signedOut {
                         Text(environment.localizer.text(.codexSessionHelp))
@@ -106,7 +88,7 @@ struct SettingsView: View {
                     }
                 }
 
-                providerAccountGroup(provider: .claudeCode) {
+                providerAccountGroup(provider: .claude) {
                     // Personal account (OAuth via Claude Code CLI)
                     VStack(alignment: .leading, spacing: 8) {
                         Text(environment.localizer.text(.claudePersonalAccount))
@@ -261,8 +243,6 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
 
                     Picker(environment.localizer.text(.claudeMenuBarMetric), selection: $environment.settings.preferences.claudeMenuBarMetric) {
-                        Text(environment.localizer.text(.claudeMenuBarMetricWeekly)).tag(ClaudeMenuBarMetric.weekly)
-                        Text(environment.localizer.text(.claudeMenuBarMetricFiveHour)).tag(ClaudeMenuBarMetric.fiveHour)
                         Text(environment.localizer.text(.claudeMenuBarMetricWeeklyQuota)).tag(ClaudeMenuBarMetric.weeklyQuota)
                         Text(environment.localizer.text(.claudeMenuBarMetricDailyCost)).tag(ClaudeMenuBarMetric.dailyCost)
                     }

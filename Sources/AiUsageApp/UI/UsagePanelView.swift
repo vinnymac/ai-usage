@@ -149,22 +149,18 @@ struct UsagePanelView: View {
             return environment.localizer.text(.codexWeekly)
         case .codexCredits:
             return environment.localizer.text(.codexCredits)
-        case .claudeFiveHour:
-            return environment.localizer.text(.claudeFiveHour)
-        case .claudeWeekly:
-            return environment.localizer.text(.claudeWeekly)
         case .copilotMonthly:
             return environment.localizer.text(.copilotMonthly)
-        case .claudeCodeFiveHour:
-            return environment.localizer.text(.claudeCodeFiveHour)
-        case .claudeCodeWeeklyQuota:
-            return environment.localizer.text(.claudeCodeWeeklyQuota)
-        case .claudeCodeDailyCost:
-            return environment.localizer.text(.claudeCodeDailyCost)
-        case .claudeCodeWeeklyCost:
-            return environment.localizer.text(.claudeCodeWeeklyCost)
-        case .claudeCodeSonnet:
-            return environment.localizer.text(.claudeCodeSonnet)
+        case .claudeFiveHour:
+            return environment.localizer.text(.claudeFiveHour)
+        case .claudeWeeklyQuota:
+            return environment.localizer.text(.claudeWeeklyQuota)
+        case .claudeDailyCost:
+            return environment.localizer.text(.claudeDailyCost)
+        case .claudeWeeklyCost:
+            return environment.localizer.text(.claudeWeeklyCost)
+        case .claudeSonnet:
+            return environment.localizer.text(.claudeSonnet)
         }
     }
 
@@ -231,18 +227,16 @@ struct UsagePanelView: View {
 
     private func metrics(for provider: ProviderID) -> [UsageMetricKind] {
         switch provider {
-        case .claude:
-            return [.claudeFiveHour, .claudeWeekly]
         case .codex:
             return [.codexFiveHour, .codexWeekly, .codexCredits]
         case .copilot:
             return [.copilotMonthly]
-        case .claudeCode:
-            let snapshot = environment.snapshot(for: .claudeCode)
-            let hasAPIData = snapshot?.metric(.claudeCodeDailyCost)?.remainingValue != nil
+        case .claude:
+            let snapshot = environment.snapshot(for: .claude)
+            let hasAPIData = snapshot?.metric(.claudeDailyCost)?.remainingValue != nil
             return hasAPIData
-                ? [.claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet]
-                : [.claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet]
+                ? [.claudeDailyCost, .claudeWeeklyCost, .claudeSonnet]
+                : [.claudeFiveHour, .claudeWeeklyQuota, .claudeSonnet]
         }
     }
 
@@ -266,9 +260,9 @@ struct UsagePanelView: View {
 
     private func missingValueText(for kind: UsageMetricKind) -> String {
         switch kind {
-        case .codexCredits, .claudeCodeDailyCost, .claudeCodeWeeklyCost:
+        case .codexCredits, .claudeDailyCost, .claudeWeeklyCost:
             return "-"
-        case .codexFiveHour, .codexWeekly, .claudeFiveHour, .claudeWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet:
+        case .codexFiveHour, .codexWeekly, .copilotMonthly, .claudeFiveHour, .claudeWeeklyQuota, .claudeSonnet:
             return "-%"
         }
     }

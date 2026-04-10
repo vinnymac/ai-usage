@@ -110,7 +110,7 @@ final class NotificationService {
         }
 
         if preferences.showClaudeCodeResetNotifications {
-            for kind in [UsageMetricKind.claudeCodeFiveHour, .claudeCodeWeeklyQuota] {
+            for kind in [UsageMetricKind.claudeFiveHour, .claudeWeeklyQuota] {
                 guard let previous = previousSnapshots[kind.provider]?.metric(kind),
                       let current = newSnapshots[kind.provider]?.metric(kind),
                       let previousReset = previous.resetAtUTC,
@@ -177,21 +177,17 @@ final class NotificationService {
             return "Codex weekly window"
         case .codexCredits:
             return "Codex credits"
-        case .claudeFiveHour:
-            return "Claude 5-hour window"
-        case .claudeWeekly:
-            return "Claude 7-day window"
         case .copilotMonthly:
             return "GitHub Copilot monthly quota"
-        case .claudeCodeFiveHour:
+        case .claudeFiveHour:
             return "Claude Code 5-hour session"
-        case .claudeCodeWeeklyQuota:
+        case .claudeWeeklyQuota:
             return "Claude Code weekly quota"
-        case .claudeCodeDailyCost:
+        case .claudeDailyCost:
             return "Claude Code daily cost"
-        case .claudeCodeWeeklyCost:
+        case .claudeWeeklyCost:
             return "Claude Code weekly cost"
-        case .claudeCodeSonnet:
+        case .claudeSonnet:
             return "Claude Code Sonnet usage"
         }
     }

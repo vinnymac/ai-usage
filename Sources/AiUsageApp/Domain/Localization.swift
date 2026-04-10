@@ -23,8 +23,6 @@ enum L10nKey: String {
     case codexMenuBarMetricWeekly
     case codexMenuBarMetricFiveHour
     case claudeMenuBarMetric
-    case claudeMenuBarMetricWeekly
-    case claudeMenuBarMetricFiveHour
     case menuBarIcons
     case usagePanelSections
     case usagePanelProviders
@@ -33,13 +31,10 @@ enum L10nKey: String {
     case notificationsCodexReset
     case notificationsClaudeCodeReset
     case providerCodex
-    case providerClaude
     case providerCopilot
     case codexFiveHour
     case codexWeekly
     case codexCredits
-    case claudeFiveHour
-    case claudeWeekly
     case copilotMonthly
     case resetAt
     case save
@@ -53,8 +48,6 @@ enum L10nKey: String {
     case accountsSection
     case codexSessionHelp
     case codexCliConnected
-    case claudeSessionHelp
-    case claudeCliConnected
     case copilotPatHelp
     case copilotDeviceFlowWaiting
     case copilotDeviceFlowConnected
@@ -91,11 +84,11 @@ enum L10nKey: String {
     case noGitHubCopilotSessionFound
     case noCodexSessionFound
     case providerClaudeCode
-    case claudeCodeFiveHour
-    case claudeCodeWeeklyQuota
-    case claudeCodeDailyCost
-    case claudeCodeWeeklyCost
-    case claudeCodeSonnet
+    case claudeFiveHour
+    case claudeWeeklyQuota
+    case claudeDailyCost
+    case claudeWeeklyCost
+    case claudeSonnet
     case claudeMenuBarMetricWeeklyQuota
     case claudeMenuBarMetricDailyCost
     case claudePersonalAutoAuth
@@ -147,7 +140,6 @@ struct Localizer {
             .codexMenuBarMetric: "Codex menu bar percentage",
             .codexMenuBarMetricWeekly: "Weekly usage",
             .codexMenuBarMetricFiveHour: "5-hour usage",
-            .claudeMenuBarMetricWeekly: "7-day usage",
             .menuBarIcons: "Menu bar icons",
             .usagePanelSections: "Usage panel sections",
             .usagePanelProviders: "Usage panel providers",
@@ -156,13 +148,10 @@ struct Localizer {
             .notificationsCodexReset: "Codex early reset alerts",
             .notificationsClaudeCodeReset: "Claude Code early reset alerts",
             .providerCodex: "Codex",
-            .providerClaude: "Claude",
             .providerCopilot: "GitHub Copilot",
             .codexFiveHour: "5-hour usage limit",
             .codexWeekly: "Weekly usage limit",
             .codexCredits: "Credits",
-            .claudeFiveHour: "5-hour usage limit",
-            .claudeWeekly: "7-day usage limit",
             .copilotMonthly: "Monthly usage limit",
             .resetAt: "Reset",
             .save: "Save",
@@ -176,8 +165,6 @@ struct Localizer {
             .accountsSection: "Accounts",
             .codexSessionHelp: "Codex uses the local Codex CLI login from `~/.codex/auth.json`. Run `codex login` in Terminal, then refresh.",
             .codexCliConnected: "Detected local Codex CLI auth. Sign out through the Codex CLI if you want to disconnect it.",
-            .claudeSessionHelp: "Claude uses the local Claude Code login from Keychain or `~/.claude/.credentials.json`. Run `claude` in Terminal, then refresh.",
-            .claudeCliConnected: "Detected local Claude Code auth. Sign out through Claude Code if you want to disconnect it.",
             .copilotPatHelp: "GitHub Copilot signs in with GitHub device flow and loads usage from GitHub's Copilot API.",
             .copilotDeviceFlowWaiting: "Continue in your browser and enter this GitHub code: %@",
             .copilotDeviceFlowConnected: "GitHub Copilot is connected.",
@@ -213,14 +200,13 @@ struct Localizer {
             .signOut: "Sign out",
             .noGitHubCopilotSessionFound: "No GitHub session cookies were found yet.",
             .noCodexSessionFound: "No ChatGPT session cookies were found yet.",
-            .providerClaudeCode: "Claude Code",
-            .claudeCodeFiveHour: "5-hour session limit",
-            .claudeCodeWeeklyQuota: "Weekly usage limit",
-            .claudeCodeDailyCost: "Today's cost",
-            .claudeCodeWeeklyCost: "7-day cost",
-            .claudeCodeSonnet: "Sonnet usage",
+            .providerClaudeCode: "Claude",
+            .claudeFiveHour: "5-hour session limit",
+            .claudeWeeklyQuota: "Weekly usage limit",
+            .claudeDailyCost: "Today's cost",
+            .claudeWeeklyCost: "7-day cost",
+            .claudeSonnet: "Sonnet usage",
             .claudeMenuBarMetric: "Claude menu bar metric",
-            .claudeMenuBarMetricFiveHour: "5-hour usage",
             .claudeMenuBarMetricWeeklyQuota: "Weekly usage",
             .claudeMenuBarMetricDailyCost: "Daily cost",
             .claudePersonalAutoAuth: "Personal Pro and Max accounts are automatically authenticated using credentials from the Claude Code CLI. No additional configuration is needed — just make sure you're logged in via `claude`.",
@@ -257,7 +243,6 @@ struct Localizer {
             .codexMenuBarMetric: "Procent Codex na pasku menu",
             .codexMenuBarMetricWeekly: "Użycie tygodniowe",
             .codexMenuBarMetricFiveHour: "Użycie 5-godzinne",
-            .claudeMenuBarMetricWeekly: "Użycie 7-dniowe",
             .menuBarIcons: "Ikony na pasku menu",
             .usagePanelSections: "Sekcje panelu użycia",
             .usagePanelProviders: "Usługi w panelu",
@@ -266,13 +251,10 @@ struct Localizer {
             .notificationsCodexReset: "Alerty o wczesnym resecie Codex",
             .notificationsClaudeCodeReset: "Alerty o wczesnym resecie Claude Code",
             .providerCodex: "Codex",
-            .providerClaude: "Claude",
             .providerCopilot: "GitHub Copilot",
             .codexFiveHour: "5-godzinny limit wykorzystania",
             .codexWeekly: "Tygodniowy limit wykorzystania",
             .codexCredits: "Kredyty",
-            .claudeFiveHour: "5-godzinny limit wykorzystania",
-            .claudeWeekly: "7-dniowy limit wykorzystania",
             .copilotMonthly: "Miesięczny limit wykorzystania",
             .resetAt: "Reset",
             .save: "Zapisz",
@@ -286,8 +268,6 @@ struct Localizer {
             .accountsSection: "Konta",
             .codexSessionHelp: "Codex korzysta z lokalnego logowania Codex CLI z `~/.codex/auth.json`. Uruchom `codex login` w Terminalu, a potem odśwież.",
             .codexCliConnected: "Wykryto lokalne uwierzytelnienie Codex CLI. Wyloguj się z poziomu Codex CLI, jeśli chcesz je odłączyć.",
-            .claudeSessionHelp: "Claude korzysta z lokalnego logowania Claude Code z Keychain lub `~/.claude/.credentials.json`. Uruchom `claude` w Terminalu, a potem odśwież.",
-            .claudeCliConnected: "Wykryto lokalne uwierzytelnienie Claude Code. Wyloguj się z poziomu Claude Code, jeśli chcesz je odłączyć.",
             .copilotPatHelp: "GitHub Copilot loguje się przez GitHub device flow i pobiera użycie z API Copilot w GitHub.",
             .copilotDeviceFlowWaiting: "Kontynuuj w przeglądarce i wpisz ten kod GitHub: %@",
             .copilotDeviceFlowConnected: "GitHub Copilot jest połączony.",
@@ -323,14 +303,13 @@ struct Localizer {
             .signOut: "Wyloguj się",
             .noGitHubCopilotSessionFound: "Nie znaleziono jeszcze ciasteczek sesji GitHub.",
             .noCodexSessionFound: "Nie znaleziono jeszcze ciasteczek sesji ChatGPT.",
-            .providerClaudeCode: "Claude Code",
-            .claudeCodeFiveHour: "5-godzinny limit sesji",
-            .claudeCodeWeeklyQuota: "Tygodniowy limit wykorzystania",
-            .claudeCodeDailyCost: "Dzisiejszy koszt",
-            .claudeCodeWeeklyCost: "Koszt 7-dniowy",
-            .claudeCodeSonnet: "Użycie Sonnet",
+            .providerClaudeCode: "Claude",
+            .claudeFiveHour: "5-godzinny limit sesji",
+            .claudeWeeklyQuota: "Tygodniowy limit wykorzystania",
+            .claudeDailyCost: "Dzisiejszy koszt",
+            .claudeWeeklyCost: "Koszt 7-dniowy",
+            .claudeSonnet: "Użycie Sonnet",
             .claudeMenuBarMetric: "Metryka Claude na pasku menu",
-            .claudeMenuBarMetricFiveHour: "Użycie 5-godzinne",
             .claudeMenuBarMetricWeeklyQuota: "Użycie tygodniowe",
             .claudeMenuBarMetricDailyCost: "Dzienny koszt",
             .claudePersonalAutoAuth: "Konta osobiste Pro i Max są uwierzytelniane automatycznie za pomocą danych uwierzytelniających Claude Code CLI. Nie jest wymagana żadna dodatkowa konfiguracja — wystarczy być zalogowanym przez `claude`.",

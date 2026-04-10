@@ -3,7 +3,7 @@ import Security
 
 @MainActor
 final class ClaudeCodeProvider: UsageProvider {
-    let id: ProviderID = .claudeCode
+    let id: ProviderID = .claude
     let sourceDescription = "Claude Code"
 
     private let keychain: KeychainStore
@@ -153,7 +153,7 @@ final class ClaudeCodeProvider: UsageProvider {
 
         let metrics: [UsageMetric] = [
             UsageMetric(
-                kind: .claudeCodeDailyCost,
+                kind: .claudeDailyCost,
                 remainingFraction: nil,
                 remainingValue: daily.totalCostUSD,
                 totalValue: nil,
@@ -163,7 +163,7 @@ final class ClaudeCodeProvider: UsageProvider {
                 detailText: nil
             ),
             UsageMetric(
-                kind: .claudeCodeWeeklyCost,
+                kind: .claudeWeeklyCost,
                 remainingFraction: nil,
                 remainingValue: weekly.totalCostUSD,
                 totalValue: nil,
@@ -173,7 +173,7 @@ final class ClaudeCodeProvider: UsageProvider {
                 detailText: nil
             ),
             UsageMetric(
-                kind: .claudeCodeSonnet,
+                kind: .claudeSonnet,
                 remainingFraction: sonnetFraction,
                 remainingValue: sonnetFraction.map { $0 * 100 },
                 totalValue: 100,
@@ -213,7 +213,7 @@ final class ClaudeCodeProvider: UsageProvider {
 
         let metrics: [UsageMetric] = [
             UsageMetric(
-                kind: .claudeCodeFiveHour,
+                kind: .claudeFiveHour,
                 remainingFraction: fiveHourFraction,
                 remainingValue: fiveHourFraction.map { $0 * 100 },
                 totalValue: 100,
@@ -223,7 +223,7 @@ final class ClaudeCodeProvider: UsageProvider {
                 detailText: nil
             ),
             UsageMetric(
-                kind: .claudeCodeWeeklyQuota,
+                kind: .claudeWeeklyQuota,
                 remainingFraction: weeklyFraction,
                 remainingValue: weeklyFraction.map { $0 * 100 },
                 totalValue: 100,
@@ -233,7 +233,7 @@ final class ClaudeCodeProvider: UsageProvider {
                 detailText: nil
             ),
             UsageMetric(
-                kind: .claudeCodeSonnet,
+                kind: .claudeSonnet,
                 remainingFraction: sonnetFraction,
                 remainingValue: sonnetFraction.map { $0 * 100 },
                 totalValue: 100,
@@ -368,11 +368,11 @@ final class ClaudeCodeProvider: UsageProvider {
 
     private func placeholderMetrics(now: Date) -> [UsageMetric] {
         [
-            UsageMetric(kind: .claudeCodeFiveHour, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-            UsageMetric(kind: .claudeCodeWeeklyQuota, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-            UsageMetric(kind: .claudeCodeDailyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-            UsageMetric(kind: .claudeCodeWeeklyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-            UsageMetric(kind: .claudeCodeSonnet, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+            UsageMetric(kind: .claudeFiveHour, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+            UsageMetric(kind: .claudeWeeklyQuota, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+            UsageMetric(kind: .claudeDailyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+            UsageMetric(kind: .claudeWeeklyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+            UsageMetric(kind: .claudeSonnet, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
         ]
     }
 

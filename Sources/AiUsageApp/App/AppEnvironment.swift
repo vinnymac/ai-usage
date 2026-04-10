@@ -8,11 +8,9 @@ enum MenuBarSummaryEvaluator {
         switch provider {
         case .codex:
             return snapshot.metric(preferences.codexMenuBarMetric.usageMetricKind)?.remainingFraction
-        case .claude:
-            return snapshot.metric(preferences.claudeMenuBarMetric.usageMetricKind)?.remainingFraction
         case .copilot:
             return snapshot.metric(.copilotMonthly)?.remainingFraction
-        case .claudeCode:
+        case .claude:
             return snapshot.metric(preferences.claudeMenuBarMetric.usageMetricKind)?.remainingFraction
         }
     }
@@ -34,7 +32,6 @@ final class AppEnvironment: ObservableObject {
     let logStore: LogStore
 
     private let codexProvider: CodexProvider
-    private let claudeProvider: ClaudeProvider
     private let copilotProvider: CopilotProvider
     private let claudeCodeProvider: ClaudeCodeProvider
     private var statusItemController: StatusItemController?
@@ -53,7 +50,6 @@ final class AppEnvironment: ObservableObject {
         self.logStore = LogStore()
         self.notificationService = NotificationService(usageStore: usageStore)
         self.codexProvider = CodexProvider(keychain: keychain, logStore: logStore)
-        self.claudeProvider = ClaudeProvider(logStore: logStore)
         self.copilotProvider = CopilotProvider(keychain: keychain, logStore: logStore)
         self.claudeCodeProvider = ClaudeCodeProvider(keychain: keychain, logStore: logStore)
         self.claudeOAuthEnabled = self.claudeCodeProvider.oauthEnabled
@@ -169,11 +165,9 @@ final class AppEnvironment: ObservableObject {
         switch provider {
         case .codex:
             return codexProvider.currentAuthState()
-        case .claude:
-            return claudeProvider.currentAuthState()
         case .copilot:
             return copilotProvider.currentAuthState()
-        case .claudeCode:
+        case .claude:
             return claudeCodeProvider.currentAuthState()
         }
     }
@@ -206,14 +200,14 @@ final class AppEnvironment: ObservableObject {
         try claudeCodeProvider.saveAdminKey(key)
         claudeAdminKeyConfigured = true
         logStore.append(category: "claude", message: "Claude Code Admin API key saved to Keychain.")
-        bootstrapMissingSnapshot(for: .claudeCode)
+        bootstrapMissingSnapshot(for: .claude)
     }
 
     func removeClaudeAdminKey() throws {
         try claudeCodeProvider.removeAdminKey()
         claudeAdminKeyConfigured = false
         logStore.append(category: "claude", message: "Claude Code Admin API key removed.")
-        bootstrapMissingSnapshot(for: .claudeCode)
+        bootstrapMissingSnapshot(for: .claude)
     }
 
     /// Attempts to read the Claude Code OAuth token from the Keychain.
@@ -225,7 +219,7 @@ final class AppEnvironment: ObservableObject {
         claudeOAuthEnabled = claudeCodeProvider.oauthEnabled
         if success {
             logStore.append(category: "claude", message: "Claude Code OAuth credentials found and enabled.")
-            bootstrapMissingSnapshot(for: .claudeCode)
+            bootstrapMissingSnapshot(for: .claude)
         } else {
             logStore.append(level: .warning, category: "claude", message: "Claude Code OAuth credentials not found. Is Claude Code installed and logged in?")
         }
@@ -236,7 +230,7 @@ final class AppEnvironment: ObservableObject {
         claudeCodeProvider.disableOAuth()
         claudeOAuthEnabled = false
         logStore.append(category: "claude", message: "Claude Code OAuth connection disabled.")
-        bootstrapMissingSnapshot(for: .claudeCode)
+        bootstrapMissingSnapshot(for: .claude)
     }
 
     func clearAuth(for provider: ProviderID) throws {
@@ -244,13 +238,10 @@ final class AppEnvironment: ObservableObject {
         case .codex:
             try codexProvider.clearAuth()
             logStore.append(category: "codex", message: "Codex auth is managed by the local Codex CLI.")
-        case .claude:
-            try claudeProvider.clearAuth()
-            logStore.append(category: "claude", message: "Claude auth is managed by the local Claude Code login.")
         case .copilot:
             try copilotProvider.clearAuth()
             logStore.append(category: "copilot", message: "Copilot credentials removed from Keychain.")
-        case .claudeCode:
+        case .claude:
             try claudeCodeProvider.clearAuth()
             claudeOAuthEnabled = false
             claudeAdminKeyConfigured = false
@@ -315,7 +306,7 @@ final class AppEnvironment: ObservableObject {
     }
 
     private var providers: [UsageProvider] {
-        [codexProvider, claudeProvider, copilotProvider, claudeCodeProvider]
+        [codexProvider, copilotProvider, claudeCodeProvider]
     }
 
     private func menuBarFraction(for provider: ProviderID) -> Double? {
@@ -360,23 +351,10 @@ final class AppEnvironment: ObservableObject {
             fetchedAtUTC: nil,
             metrics: [
                 UsageMetric(kind: .claudeFiveHour, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-                UsageMetric(kind: .claudeWeekly, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-            ],
-            errorDescription: nil,
-            sourceDescription: nil
-        )
-
-        snapshots[.claudeCode] = ProviderSnapshot(
-            provider: .claudeCode,
-            authState: .signedOut,
-            fetchState: .missingAuth,
-            fetchedAtUTC: nil,
-            metrics: [
-                UsageMetric(kind: .claudeCodeFiveHour, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-                UsageMetric(kind: .claudeCodeWeeklyQuota, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-                UsageMetric(kind: .claudeCodeDailyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-                UsageMetric(kind: .claudeCodeWeeklyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
-                UsageMetric(kind: .claudeCodeSonnet, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+                UsageMetric(kind: .claudeWeeklyQuota, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+                UsageMetric(kind: .claudeDailyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+                UsageMetric(kind: .claudeWeeklyCost, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .cost, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
+                UsageMetric(kind: .claudeSonnet, remainingFraction: nil, remainingValue: nil, totalValue: nil, unit: .percentage, resetAtUTC: nil, lastUpdatedAtUTC: now, detailText: nil),
             ],
             errorDescription: nil,
             sourceDescription: nil
@@ -401,19 +379,6 @@ final class AppEnvironment: ObservableObject {
                 errorDescription: nil,
                 sourceDescription: codexProvider.sourceDescription
             )
-        case .claude:
-            snapshots[.claude] = ProviderSnapshot(
-                provider: .claude,
-                authState: currentAuthState(for: .claude),
-                fetchState: currentAuthState(for: .claude) == .signedOut ? .missingAuth : .failed,
-                fetchedAtUTC: snapshots[.claude]?.fetchedAtUTC,
-                metrics: [
-                    UsageMetric(kind: .claudeFiveHour, remainingFraction: snapshots[.claude]?.metric(.claudeFiveHour)?.remainingFraction, remainingValue: snapshots[.claude]?.metric(.claudeFiveHour)?.remainingValue, totalValue: snapshots[.claude]?.metric(.claudeFiveHour)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claude]?.metric(.claudeFiveHour)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: snapshots[.claude]?.metric(.claudeFiveHour)?.detailText),
-                    UsageMetric(kind: .claudeWeekly, remainingFraction: snapshots[.claude]?.metric(.claudeWeekly)?.remainingFraction, remainingValue: snapshots[.claude]?.metric(.claudeWeekly)?.remainingValue, totalValue: snapshots[.claude]?.metric(.claudeWeekly)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claude]?.metric(.claudeWeekly)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: snapshots[.claude]?.metric(.claudeWeekly)?.detailText),
-                ],
-                errorDescription: nil,
-                sourceDescription: claudeProvider.sourceDescription
-            )
         case .copilot:
             snapshots[.copilot] = ProviderSnapshot(
                 provider: .copilot,
@@ -426,19 +391,19 @@ final class AppEnvironment: ObservableObject {
                 errorDescription: nil,
                 sourceDescription: copilotProvider.sourceDescription
             )
-        case .claudeCode:
-            let authState = currentAuthState(for: .claudeCode)
-            snapshots[.claudeCode] = ProviderSnapshot(
-                provider: .claudeCode,
+        case .claude:
+            let authState = currentAuthState(for: .claude)
+            snapshots[.claude] = ProviderSnapshot(
+                provider: .claude,
                 authState: authState,
                 fetchState: authState == .signedOut ? .missingAuth : .failed,
-                fetchedAtUTC: snapshots[.claudeCode]?.fetchedAtUTC,
+                fetchedAtUTC: snapshots[.claude]?.fetchedAtUTC,
                 metrics: [
-                    UsageMetric(kind: .claudeCodeFiveHour, remainingFraction: snapshots[.claudeCode]?.metric(.claudeCodeFiveHour)?.remainingFraction, remainingValue: snapshots[.claudeCode]?.metric(.claudeCodeFiveHour)?.remainingValue, totalValue: snapshots[.claudeCode]?.metric(.claudeCodeFiveHour)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claudeCode]?.metric(.claudeCodeFiveHour)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
-                    UsageMetric(kind: .claudeCodeWeeklyQuota, remainingFraction: snapshots[.claudeCode]?.metric(.claudeCodeWeeklyQuota)?.remainingFraction, remainingValue: snapshots[.claudeCode]?.metric(.claudeCodeWeeklyQuota)?.remainingValue, totalValue: snapshots[.claudeCode]?.metric(.claudeCodeWeeklyQuota)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claudeCode]?.metric(.claudeCodeWeeklyQuota)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
-                    UsageMetric(kind: .claudeCodeDailyCost, remainingFraction: nil, remainingValue: snapshots[.claudeCode]?.metric(.claudeCodeDailyCost)?.remainingValue, totalValue: nil, unit: .cost, resetAtUTC: snapshots[.claudeCode]?.metric(.claudeCodeDailyCost)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
-                    UsageMetric(kind: .claudeCodeWeeklyCost, remainingFraction: nil, remainingValue: snapshots[.claudeCode]?.metric(.claudeCodeWeeklyCost)?.remainingValue, totalValue: nil, unit: .cost, resetAtUTC: snapshots[.claudeCode]?.metric(.claudeCodeWeeklyCost)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
-                    UsageMetric(kind: .claudeCodeSonnet, remainingFraction: snapshots[.claudeCode]?.metric(.claudeCodeSonnet)?.remainingFraction, remainingValue: snapshots[.claudeCode]?.metric(.claudeCodeSonnet)?.remainingValue, totalValue: snapshots[.claudeCode]?.metric(.claudeCodeSonnet)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claudeCode]?.metric(.claudeCodeSonnet)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
+                    UsageMetric(kind: .claudeFiveHour, remainingFraction: snapshots[.claude]?.metric(.claudeFiveHour)?.remainingFraction, remainingValue: snapshots[.claude]?.metric(.claudeFiveHour)?.remainingValue, totalValue: snapshots[.claude]?.metric(.claudeFiveHour)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claude]?.metric(.claudeFiveHour)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
+                    UsageMetric(kind: .claudeWeeklyQuota, remainingFraction: snapshots[.claude]?.metric(.claudeWeeklyQuota)?.remainingFraction, remainingValue: snapshots[.claude]?.metric(.claudeWeeklyQuota)?.remainingValue, totalValue: snapshots[.claude]?.metric(.claudeWeeklyQuota)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claude]?.metric(.claudeWeeklyQuota)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
+                    UsageMetric(kind: .claudeDailyCost, remainingFraction: nil, remainingValue: snapshots[.claude]?.metric(.claudeDailyCost)?.remainingValue, totalValue: nil, unit: .cost, resetAtUTC: snapshots[.claude]?.metric(.claudeDailyCost)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
+                    UsageMetric(kind: .claudeWeeklyCost, remainingFraction: nil, remainingValue: snapshots[.claude]?.metric(.claudeWeeklyCost)?.remainingValue, totalValue: nil, unit: .cost, resetAtUTC: snapshots[.claude]?.metric(.claudeWeeklyCost)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
+                    UsageMetric(kind: .claudeSonnet, remainingFraction: snapshots[.claude]?.metric(.claudeSonnet)?.remainingFraction, remainingValue: snapshots[.claude]?.metric(.claudeSonnet)?.remainingValue, totalValue: snapshots[.claude]?.metric(.claudeSonnet)?.totalValue, unit: .percentage, resetAtUTC: snapshots[.claude]?.metric(.claudeSonnet)?.resetAtUTC, lastUpdatedAtUTC: now, detailText: nil),
                 ],
                 errorDescription: nil,
                 sourceDescription: claudeCodeProvider.sourceDescription

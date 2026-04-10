@@ -2,9 +2,8 @@ import Foundation
 
 enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
     case codex
-    case claude
     case copilot
-    case claudeCode
+    case claude
 
     var id: String { rawValue }
 
@@ -12,11 +11,9 @@ enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable
         switch self {
         case .codex:
             URL(string: "https://chatgpt.com/codex/cloud/settings/usage")!
-        case .claude:
-            URL(string: "https://claude.ai/settings/usage")!
         case .copilot:
             URL(string: "https://github.com/settings/copilot/features")!
-        case .claudeCode:
+        case .claude:
             URL(string: "https://claude.ai/settings/usage")!
         }
     }
@@ -25,11 +22,9 @@ enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable
         switch self {
         case .codex:
             return "openai-icon"
-        case .claude:
-            return "claude-icon"
         case .copilot:
             return "copilot-icon"
-        case .claudeCode:
+        case .claude:
             return "claude-icon"
         }
     }
@@ -38,11 +33,9 @@ enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable
         switch self {
         case .codex:
             return localizer.text(.providerCodex)
-        case .claude:
-            return localizer.text(.providerClaude)
         case .copilot:
             return localizer.text(.providerCopilot)
-        case .claudeCode:
+        case .claude:
             return localizer.text(.providerClaudeCode)
         }
     }
@@ -52,17 +45,15 @@ enum UsageMetricKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
     case codexFiveHour
     case codexWeekly
     case codexCredits
-    case claudeFiveHour
-    case claudeWeekly
     case copilotMonthly
     // Claude Code — web session path
-    case claudeCodeFiveHour
-    case claudeCodeWeeklyQuota
+    case claudeFiveHour
+    case claudeWeeklyQuota
     // Claude Code — admin API path
-    case claudeCodeDailyCost
-    case claudeCodeWeeklyCost
+    case claudeDailyCost
+    case claudeWeeklyCost
     // Claude Code — both paths
-    case claudeCodeSonnet
+    case claudeSonnet
 
     var id: String { rawValue }
 
@@ -70,38 +61,36 @@ enum UsageMetricKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
         switch self {
         case .codexFiveHour, .codexWeekly, .codexCredits:
             return .codex
-        case .claudeFiveHour, .claudeWeekly:
-            return .claude
         case .copilotMonthly:
             return .copilot
-        case .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet:
-            return .claudeCode
+        case .claudeFiveHour, .claudeWeeklyQuota, .claudeDailyCost, .claudeWeeklyCost, .claudeSonnet:
+            return .claude
         }
     }
 
     var participatesInMenuBarSummary: Bool {
         switch self {
-        case .codexFiveHour, .codexWeekly, .claudeFiveHour, .claudeWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeDailyCost:
+        case .codexFiveHour, .codexWeekly, .copilotMonthly, .claudeFiveHour, .claudeWeeklyQuota, .claudeDailyCost:
             return true
-        case .codexCredits, .claudeCodeWeeklyCost, .claudeCodeSonnet:
+        case .codexCredits, .claudeWeeklyCost, .claudeSonnet:
             return false
         }
     }
 
     var supportsAheadNotifications: Bool {
         switch self {
-        case .codexFiveHour, .codexWeekly, .claudeFiveHour, .claudeWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota:
+        case .codexFiveHour, .codexWeekly, .copilotMonthly, .claudeFiveHour, .claudeWeeklyQuota:
             return true
-        case .codexCredits, .claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet:
+        case .codexCredits, .claudeDailyCost, .claudeWeeklyCost, .claudeSonnet:
             return false
         }
     }
 
     var supportsBehindNotifications: Bool {
         switch self {
-        case .codexWeekly, .claudeWeekly, .copilotMonthly, .claudeCodeWeeklyQuota:
+        case .codexWeekly, .copilotMonthly, .claudeWeeklyQuota:
             return true
-        case .codexFiveHour, .claudeFiveHour, .codexCredits, .claudeCodeFiveHour, .claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet:
+        case .codexFiveHour, .codexCredits, .claudeFiveHour, .claudeDailyCost, .claudeWeeklyCost, .claudeSonnet:
             return false
         }
     }
@@ -209,8 +198,6 @@ enum CodexMenuBarMetric: String, Codable, CaseIterable, Identifiable, Hashable, 
 }
 
 enum ClaudeMenuBarMetric: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
-    case weekly
-    case fiveHour
     case weeklyQuota
     case dailyCost
 
@@ -218,14 +205,10 @@ enum ClaudeMenuBarMetric: String, Codable, CaseIterable, Identifiable, Hashable,
 
     var usageMetricKind: UsageMetricKind {
         switch self {
-        case .weekly:
-            return .claudeWeekly
-        case .fiveHour:
-            return .claudeFiveHour
         case .weeklyQuota:
-            return .claudeCodeWeeklyQuota
+            return .claudeWeeklyQuota
         case .dailyCost:
-            return .claudeCodeDailyCost
+            return .claudeDailyCost
         }
     }
 }
@@ -317,7 +300,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
         refreshIntervalMinutes = try container.decode(Int.self, forKey: .refreshIntervalMinutes)
         language = try container.decode(AppLanguage.self, forKey: .language)
         codexMenuBarMetric = try container.decodeIfPresent(CodexMenuBarMetric.self, forKey: .codexMenuBarMetric) ?? .weekly
-        claudeMenuBarMetric = try container.decodeIfPresent(ClaudeMenuBarMetric.self, forKey: .claudeMenuBarMetric) ?? .fiveHour
+        claudeMenuBarMetric = try container.decodeIfPresent(ClaudeMenuBarMetric.self, forKey: .claudeMenuBarMetric) ?? .weeklyQuota
         usagePanelBackgroundStyle = try container.decodeIfPresent(UsagePanelBackgroundStyle.self, forKey: .usagePanelBackgroundStyle) ?? .regularMaterial
     }
 
@@ -349,7 +332,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
         refreshIntervalMinutes: 5,
         language: .englishUS,
         codexMenuBarMetric: .weekly,
-        claudeMenuBarMetric: .fiveHour,
+        claudeMenuBarMetric: .weeklyQuota,
         usagePanelBackgroundStyle: .regularMaterial
     )
 }
