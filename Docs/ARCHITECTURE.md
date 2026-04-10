@@ -53,7 +53,7 @@ Tests/AiUsageAppTests/
 
 ### Popover
 
-`UsagePanelView` is the main read-only dashboard. It shows:
+`UsagePanelView` is the main read-only dashboard. It shows cards for the providers enabled in display preferences:
 
 - Claude 5-hour usage
 - Claude 7-day usage
@@ -160,7 +160,7 @@ Non-secret state is persisted in `UserDefaults`:
 - `UsageStore` stores provider snapshots, alert state, and Codex reset markers
 - `LogStore` stores up to 300 diagnostic entries
 
-Provider visibility is persisted as an opt-out list, so providers remain visible by default when no explicit hide setting exists. Dates are encoded in ISO 8601 so stored state remains stable across launches.
+Menu bar and panel provider visibility are each persisted as opt-out lists, so providers remain visible by default when no explicit hide setting exists. Dates are encoded in ISO 8601 so stored state remains stable across launches.
 
 ## Notifications And Scheduling
 

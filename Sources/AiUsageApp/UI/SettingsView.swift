@@ -188,7 +188,19 @@ struct SettingsView: View {
 
                 settingsSection(title: environment.localizer.text(.menuBarIcons)) {
                     ForEach(ProviderID.allCases.sorted { $0.rawValue < $1.rawValue }) { provider in
-                        Toggle(provider.displayName(localizer: environment.localizer), isOn: visibleProviderBinding(provider))
+                        Toggle(
+                            provider.displayName(localizer: environment.localizer),
+                            isOn: visibilityBinding(for: provider, keyPath: \.visibleProviders)
+                        )
+                    }
+                }
+
+                settingsSection(title: environment.localizer.text(.usagePanelProviders)) {
+                    ForEach(ProviderID.allCases.sorted { $0.rawValue < $1.rawValue }) { provider in
+                        Toggle(
+                            provider.displayName(localizer: environment.localizer),
+                            isOn: visibilityBinding(for: provider, keyPath: \.visiblePanelProviders)
+                        )
                     }
                 }
             }
@@ -332,19 +344,26 @@ struct SettingsView: View {
         }
     }
 
-    private func visibleProviderBinding(_ provider: ProviderID) -> Binding<Bool> {
+    private func visibilityBinding(
+        for provider: ProviderID,
+        keyPath: WritableKeyPath<DisplayPreferences, Set<ProviderID>>
+    ) -> Binding<Bool> {
         Binding(
             get: {
-                environment.settings.preferences.visibleProviders.contains(provider)
+                environment.settings.preferences[keyPath: keyPath].contains(provider)
             },
             set: { isVisible in
-                var updated = environment.settings.preferences.visibleProviders
+                var preferences = environment.settings.preferences
+                var updated = preferences[keyPath: keyPath]
+
                 if isVisible {
                     updated.insert(provider)
                 } else if updated.count > 1 {
                     updated.remove(provider)
                 }
-                environment.settings.preferences.visibleProviders = updated
+
+                preferences[keyPath: keyPath] = updated
+                environment.settings.preferences = preferences
             }
         )
     }

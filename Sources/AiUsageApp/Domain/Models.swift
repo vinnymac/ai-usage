@@ -223,6 +223,15 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
             hiddenProviders = Set(ProviderID.allCases.filter { newValue.contains($0) == false })
         }
     }
+    private var hiddenPanelProviders: Set<ProviderID>
+    var visiblePanelProviders: Set<ProviderID> {
+        get {
+            Set(ProviderID.allCases.filter { hiddenPanelProviders.contains($0) == false })
+        }
+        set {
+            hiddenPanelProviders = Set(ProviderID.allCases.filter { newValue.contains($0) == false })
+        }
+    }
     var showAheadNotifications: Bool
     var showBehindNotifications: Bool
     var showCodexResetNotifications: Bool
@@ -234,6 +243,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case hiddenProviders
+        case hiddenPanelProviders
         case showAheadNotifications
         case showBehindNotifications
         case showCodexResetNotifications
@@ -246,6 +256,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
 
     init(
         visibleProviders: Set<ProviderID>,
+        visiblePanelProviders: Set<ProviderID>,
         showAheadNotifications: Bool,
         showBehindNotifications: Bool,
         showCodexResetNotifications: Bool,
@@ -256,6 +267,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
         usagePanelBackgroundStyle: UsagePanelBackgroundStyle
     ) {
         self.hiddenProviders = Set(ProviderID.allCases.filter { visibleProviders.contains($0) == false })
+        self.hiddenPanelProviders = Set(ProviderID.allCases.filter { visiblePanelProviders.contains($0) == false })
         self.showAheadNotifications = showAheadNotifications
         self.showBehindNotifications = showBehindNotifications
         self.showCodexResetNotifications = showCodexResetNotifications
@@ -269,6 +281,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         hiddenProviders = try container.decodeIfPresent(Set<ProviderID>.self, forKey: .hiddenProviders) ?? []
+        hiddenPanelProviders = try container.decodeIfPresent(Set<ProviderID>.self, forKey: .hiddenPanelProviders) ?? []
         showAheadNotifications = try container.decode(Bool.self, forKey: .showAheadNotifications)
         showBehindNotifications = try container.decode(Bool.self, forKey: .showBehindNotifications)
         showCodexResetNotifications = try container.decode(Bool.self, forKey: .showCodexResetNotifications)
@@ -282,6 +295,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(hiddenProviders, forKey: .hiddenProviders)
+        try container.encode(hiddenPanelProviders, forKey: .hiddenPanelProviders)
         try container.encode(showAheadNotifications, forKey: .showAheadNotifications)
         try container.encode(showBehindNotifications, forKey: .showBehindNotifications)
         try container.encode(showCodexResetNotifications, forKey: .showCodexResetNotifications)
@@ -298,6 +312,7 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
 
     static let `default` = DisplayPreferences(
         visibleProviders: Set(ProviderID.allCases),
+        visiblePanelProviders: Set(ProviderID.allCases),
         showAheadNotifications: true,
         showBehindNotifications: true,
         showCodexResetNotifications: true,

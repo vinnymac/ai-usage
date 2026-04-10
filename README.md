@@ -15,7 +15,7 @@ Native macOS menu bar app for tracking remaining Claude, Codex, and GitHub Copil
 - Codex tracking for 5-hour usage, weekly usage, and credits.
 - Claude tracking for 5-hour usage and 7-day usage.
 - GitHub Copilot monthly quota tracking.
-- Configurable refresh cadence, visible providers, language, and which Claude and Codex percentages appear in the menu bar.
+- Configurable refresh cadence, which providers appear in the menu bar, which providers appear in the usage panel, language, and which Claude and Codex percentages appear in the menu bar.
 - Local notifications for ahead-of-schedule usage, behind-schedule usage, and early Codex resets.
 - Keychain-backed credential storage plus persisted snapshots, preferences, and diagnostic logs.
 - English and Polish UI support.
@@ -92,7 +92,7 @@ The alert evaluator uses hysteresis and re-arming so the app does not spam notif
 ## Settings Overview
 
 - `Accounts`: manage Claude, Codex, and GitHub Copilot authentication.
-- `Display`: choose language, refresh interval, visible providers, and the Claude and Codex menu bar metrics.
+- `Display`: choose language, refresh interval, which providers appear in the menu bar, which providers appear in the usage panel, and the Claude and Codex menu bar percentages.
 - `Notifications`: enable or disable pace and reset alerts.
 - `Logs`: inspect, copy, and clear persisted diagnostic logs.
 - `About`: show the current app version.
@@ -100,8 +100,9 @@ The alert evaluator uses hysteresis and re-arming so the app does not spam notif
 ## Notes
 
 - The menu bar shows one percentage per visible provider, ordered alphabetically.
+- The usage panel shows cards only for the providers enabled in settings, ordered alphabetically.
 - Codex credits are shown in the panel, but not in the menu bar summary.
-- Providers are visible by default unless they are explicitly hidden in settings.
+- Providers are visible by default in both places unless they are explicitly hidden in settings.
 - If a metric has no known reset timestamp, the panel omits the reset line instead of inventing one.
 - Right-click the menu bar item for direct `Refresh`, `Settings`, and `Quit` actions.
 

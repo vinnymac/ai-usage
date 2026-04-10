@@ -48,9 +48,9 @@ struct UsagePanelView: View {
 
     private func metricsSection(referenceDate: Date) -> some View {
         VStack(alignment: .leading, spacing: 18) {
-            providerSection(provider: .claude, metrics: [.claudeFiveHour, .claudeWeekly], referenceDate: referenceDate)
-            providerSection(provider: .codex, metrics: [.codexFiveHour, .codexWeekly, .codexCredits], referenceDate: referenceDate)
-            providerSection(provider: .copilot, metrics: [.copilotMonthly], referenceDate: referenceDate)
+            ForEach(visiblePanelProviders) { provider in
+                providerSection(provider: provider, metrics: metrics(for: provider), referenceDate: referenceDate)
+            }
         }
     }
 
@@ -204,9 +204,24 @@ struct UsagePanelView: View {
     }
 
     private var shouldShowAuthenticationCallout: Bool {
-        ProviderID.allCases
-            .filter { environment.settings.preferences.visibleProviders.contains($0) }
+        visiblePanelProviders
             .allSatisfy { environment.currentAuthState(for: $0) == .signedOut }
+    }
+
+    private var visiblePanelProviders: [ProviderID] {
+        environment.settings.preferences.visiblePanelProviders
+            .sorted { $0.rawValue < $1.rawValue }
+    }
+
+    private func metrics(for provider: ProviderID) -> [UsageMetricKind] {
+        switch provider {
+        case .claude:
+            return [.claudeFiveHour, .claudeWeekly]
+        case .codex:
+            return [.codexFiveHour, .codexWeekly, .codexCredits]
+        case .copilot:
+            return [.copilotMonthly]
+        }
     }
 
     @ViewBuilder

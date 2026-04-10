@@ -26,6 +26,7 @@ enum L10nKey: String {
     case claudeMenuBarMetricWeekly
     case claudeMenuBarMetricFiveHour
     case menuBarIcons
+    case usagePanelProviders
     case notificationsAhead
     case notificationsBehind
     case notificationsCodexReset
@@ -131,6 +132,7 @@ struct Localizer {
             .claudeMenuBarMetricWeekly: "7-day usage",
             .claudeMenuBarMetricFiveHour: "5-hour usage",
             .menuBarIcons: "Menu bar icons",
+            .usagePanelProviders: "Usage panel providers",
             .notificationsAhead: "Ahead-of-schedule alerts",
             .notificationsBehind: "Behind-schedule alerts",
             .notificationsCodexReset: "Codex early reset alerts",
@@ -221,6 +223,7 @@ struct Localizer {
             .claudeMenuBarMetricWeekly: "Użycie 7-dniowe",
             .claudeMenuBarMetricFiveHour: "Użycie 5-godzinne",
             .menuBarIcons: "Ikony na pasku menu",
+            .usagePanelProviders: "Usługi w panelu",
             .notificationsAhead: "Alerty: za szybkie zużycie",
             .notificationsBehind: "Alerty: zbyt wolne zużycie",
             .notificationsCodexReset: "Alerty o wczesnym resecie Codex",

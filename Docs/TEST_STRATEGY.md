@@ -47,7 +47,7 @@ These tests are the main guardrail against upstream response-shape drift.
 - `ProviderIDTests`
   verifies that provider settings links still point to the expected destinations.
 - `DisplayPreferencesTests`
-  verifies that providers stay visible by default unless explicitly hidden, and that Claude-specific display preferences decode safely.
+  verifies that menu bar and panel providers stay visible by default unless explicitly hidden, and that display preferences decode safely.
 
 ## What Is Intentionally Not Covered By Unit Tests
 
@@ -70,8 +70,8 @@ Use this checklist after changing providers, auth flows, or visible UI behavior:
 3. `Settings > Accounts` detects local Codex CLI auth after `codex login`.
 4. `Settings > Accounts` detects local Claude Code auth after `claude` sign-in.
 5. `Settings > Accounts` can start GitHub device flow and later clear the stored Copilot token.
-6. `Settings > Display` changes language, refresh interval, visible providers, and the Claude and Codex menu bar metrics as expected.
-7. Provider order is alphabetical in the menu bar, usage panel, and menu-bar icon settings list.
+6. `Settings > Display` changes language, refresh interval, menu bar providers, panel providers, and the Claude and Codex menu bar metrics as expected.
+7. Provider order is alphabetical in the menu bar, usage panel, and both provider visibility settings lists.
 8. `Settings > Logs` can copy and clear logs.
 9. Refresh succeeds or fails with a clear error message for each provider.
 10. Reset times and percentages render sensibly in both English and Polish.
