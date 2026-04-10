@@ -20,9 +20,11 @@ enum L10nKey: String {
     case codexMenuBarMetricWeekly
     case codexMenuBarMetricFiveHour
     case menuBarIcons
+    case usagePanelSections
     case notificationsAhead
     case notificationsBehind
     case notificationsCodexReset
+    case notificationsClaudeCodeReset
     case providerCodex
     case providerCopilot
     case codexFiveHour
@@ -58,6 +60,7 @@ enum L10nKey: String {
     case notificationsAheadDescription
     case notificationsBehindDescription
     case notificationsCodexResetDescription
+    case notificationsClaudeCodeResetDescription
     case copyLogs
     case clearLogs
     case noLogs
@@ -71,6 +74,24 @@ enum L10nKey: String {
     case signOut
     case noGitHubCopilotSessionFound
     case noCodexSessionFound
+    case providerClaudeCode
+    case claudeCodeFiveHour
+    case claudeCodeWeeklyQuota
+    case claudeCodeDailyCost
+    case claudeCodeWeeklyCost
+    case claudeCodeSonnet
+    case claudeMenuBarMetric
+    case claudeMenuBarMetricFiveHour
+    case claudeMenuBarMetricWeeklyQuota
+    case claudeMenuBarMetricDailyCost
+    case claudePersonalAutoAuth
+    case claudePersonalAccount
+    case claudeAllowAccess
+    case claudeOrganizationAccount
+    case claudeRemoveKey
+    case claudeAdminApiKey
+    case claudeAdminApiKeyHelp
+    case claudeAdminApiKeyPlaceholder
 }
 
 struct Localizer {
@@ -110,9 +131,11 @@ struct Localizer {
             .codexMenuBarMetricWeekly: "Weekly usage",
             .codexMenuBarMetricFiveHour: "5-hour usage",
             .menuBarIcons: "Menu bar icons",
+            .usagePanelSections: "Usage panel sections",
             .notificationsAhead: "Ahead-of-schedule alerts",
             .notificationsBehind: "Behind-schedule alerts",
             .notificationsCodexReset: "Codex early reset alerts",
+            .notificationsClaudeCodeReset: "Claude Code early reset alerts",
             .providerCodex: "Codex",
             .providerCopilot: "GitHub Copilot",
             .codexFiveHour: "5-hour usage limit",
@@ -148,6 +171,7 @@ struct Localizer {
             .notificationsAheadDescription: "Warn when a quota is being consumed faster than the time window suggests.",
             .notificationsBehindDescription: "Warn when remaining quota is materially higher than expected for the current point in the window.",
             .notificationsCodexResetDescription: "Warn when the Codex 5-hour or weekly window appears to reset earlier than previously observed.",
+            .notificationsClaudeCodeResetDescription: "Warn when the Claude Code 5-hour or weekly quota appears to reset earlier than previously observed.",
             .copyLogs: "Copy logs",
             .clearLogs: "Clear logs",
             .noLogs: "No logs yet",
@@ -161,6 +185,24 @@ struct Localizer {
             .signOut: "Sign out",
             .noGitHubCopilotSessionFound: "No GitHub session cookies were found yet.",
             .noCodexSessionFound: "No ChatGPT session cookies were found yet.",
+            .providerClaudeCode: "Claude Code",
+            .claudeCodeFiveHour: "5-hour session limit",
+            .claudeCodeWeeklyQuota: "Weekly usage limit",
+            .claudeCodeDailyCost: "Today's cost",
+            .claudeCodeWeeklyCost: "7-day cost",
+            .claudeCodeSonnet: "Sonnet usage",
+            .claudeMenuBarMetric: "Claude menu bar metric",
+            .claudeMenuBarMetricFiveHour: "5-hour usage",
+            .claudeMenuBarMetricWeeklyQuota: "Weekly usage",
+            .claudeMenuBarMetricDailyCost: "Daily cost",
+            .claudePersonalAutoAuth: "Personal Pro and Max accounts are automatically authenticated using credentials from the Claude Code CLI. No additional configuration is needed — just make sure you're logged in via `claude`.",
+            .claudePersonalAccount: "Personal account (Pro / Max)",
+            .claudeAllowAccess: "Allow access",
+            .claudeOrganizationAccount: "Organization account",
+            .claudeRemoveKey: "Remove key",
+            .claudeAdminApiKey: "Admin API key",
+            .claudeAdminApiKeyHelp: "Enter an Anthropic Admin API key (sk-ant-admin...) to track org-wide cost and model usage. Admin keys are created in the Anthropic Console under Settings → Admin Keys. Only available for organization accounts.",
+            .claudeAdminApiKeyPlaceholder: "sk-ant-admin...",
         ]
     }
 
@@ -185,9 +227,11 @@ struct Localizer {
             .codexMenuBarMetricWeekly: "Użycie tygodniowe",
             .codexMenuBarMetricFiveHour: "Użycie 5-godzinne",
             .menuBarIcons: "Ikony na pasku menu",
+            .usagePanelSections: "Sekcje panelu użycia",
             .notificationsAhead: "Alerty: za szybkie zużycie",
             .notificationsBehind: "Alerty: zbyt wolne zużycie",
             .notificationsCodexReset: "Alerty o wczesnym resecie Codex",
+            .notificationsClaudeCodeReset: "Alerty o wczesnym resecie Claude Code",
             .providerCodex: "Codex",
             .providerCopilot: "GitHub Copilot",
             .codexFiveHour: "5-godzinny limit wykorzystania",
@@ -223,6 +267,7 @@ struct Localizer {
             .notificationsAheadDescription: "Ostrzegaj, gdy limit jest zużywany szybciej, niż wynikałoby z upływu okna czasowego.",
             .notificationsBehindDescription: "Ostrzegaj, gdy pozostały limit jest wyraźnie wyższy niż oczekiwany w bieżącym momencie okna czasowego.",
             .notificationsCodexResetDescription: "Ostrzegaj, gdy okno 5-godzinne lub tygodniowe Codex wygląda na zresetowane wcześniej niż poprzednio.",
+            .notificationsClaudeCodeResetDescription: "Ostrzegaj, gdy limit 5-godzinny lub tygodniowy Claude Code wygląda na zresetowany wcześniej niż poprzednio.",
             .copyLogs: "Kopiuj logi",
             .clearLogs: "Wyczyść logi",
             .noLogs: "Brak logów",
@@ -236,6 +281,24 @@ struct Localizer {
             .signOut: "Wyloguj się",
             .noGitHubCopilotSessionFound: "Nie znaleziono jeszcze ciasteczek sesji GitHub.",
             .noCodexSessionFound: "Nie znaleziono jeszcze ciasteczek sesji ChatGPT.",
+            .providerClaudeCode: "Claude Code",
+            .claudeCodeFiveHour: "5-godzinny limit sesji",
+            .claudeCodeWeeklyQuota: "Tygodniowy limit wykorzystania",
+            .claudeCodeDailyCost: "Dzisiejszy koszt",
+            .claudeCodeWeeklyCost: "Koszt 7-dniowy",
+            .claudeCodeSonnet: "Użycie Sonnet",
+            .claudeMenuBarMetric: "Metryka Claude na pasku menu",
+            .claudeMenuBarMetricFiveHour: "Użycie 5-godzinne",
+            .claudeMenuBarMetricWeeklyQuota: "Użycie tygodniowe",
+            .claudeMenuBarMetricDailyCost: "Dzienny koszt",
+            .claudePersonalAutoAuth: "Konta osobiste Pro i Max są uwierzytelniane automatycznie za pomocą danych uwierzytelniających Claude Code CLI. Nie jest wymagana żadna dodatkowa konfiguracja — wystarczy być zalogowanym przez `claude`.",
+            .claudePersonalAccount: "Konto osobiste (Pro / Max)",
+            .claudeAllowAccess: "Zezwól na dostęp",
+            .claudeOrganizationAccount: "Konto organizacyjne",
+            .claudeRemoveKey: "Usuń klucz",
+            .claudeAdminApiKey: "Klucz Admin API",
+            .claudeAdminApiKeyHelp: "Wprowadź klucz Anthropic Admin API (sk-ant-admin...), aby śledzić koszt i użycie modeli w organizacji. Klucze Admin można wygenerować w Anthropic Console w sekcji Ustawienia → Klucze Admin. Dostępne tylko dla kont organizacyjnych.",
+            .claudeAdminApiKeyPlaceholder: "sk-ant-admin...",
         ]
     }
 }

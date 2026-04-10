@@ -3,6 +3,7 @@ import Foundation
 enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
     case codex
     case copilot
+    case claudeCode
 
     var id: String { rawValue }
 
@@ -12,6 +13,8 @@ enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable
             URL(string: "https://chatgpt.com/codex/cloud/settings/usage")!
         case .copilot:
             URL(string: "https://github.com/settings/copilot/features")!
+        case .claudeCode:
+            URL(string: "https://claude.ai/settings/usage")!
         }
     }
 
@@ -21,6 +24,8 @@ enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable
             return "openai-icon"
         case .copilot:
             return "copilot-icon"
+        case .claudeCode:
+            return "claude-icon"
         }
     }
 
@@ -30,6 +35,8 @@ enum ProviderID: String, Codable, CaseIterable, Identifiable, Hashable, Sendable
             return localizer.text(.providerCodex)
         case .copilot:
             return localizer.text(.providerCopilot)
+        case .claudeCode:
+            return localizer.text(.providerClaudeCode)
         }
     }
 }
@@ -39,6 +46,14 @@ enum UsageMetricKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
     case codexWeekly
     case codexCredits
     case copilotMonthly
+    // Claude Code — web session path
+    case claudeCodeFiveHour
+    case claudeCodeWeeklyQuota
+    // Claude Code — admin API path
+    case claudeCodeDailyCost
+    case claudeCodeWeeklyCost
+    // Claude Code — both paths
+    case claudeCodeSonnet
 
     var id: String { rawValue }
 
@@ -48,32 +63,34 @@ enum UsageMetricKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
             return .codex
         case .copilotMonthly:
             return .copilot
+        case .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet:
+            return .claudeCode
         }
     }
 
     var participatesInMenuBarSummary: Bool {
         switch self {
-        case .codexFiveHour, .codexWeekly, .copilotMonthly:
+        case .codexFiveHour, .codexWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeDailyCost:
             return true
-        case .codexCredits:
+        case .codexCredits, .claudeCodeWeeklyCost, .claudeCodeSonnet:
             return false
         }
     }
 
     var supportsAheadNotifications: Bool {
         switch self {
-        case .codexFiveHour, .codexWeekly, .copilotMonthly:
+        case .codexFiveHour, .codexWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota:
             return true
-        case .codexCredits:
+        case .codexCredits, .claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet:
             return false
         }
     }
 
     var supportsBehindNotifications: Bool {
         switch self {
-        case .codexWeekly, .copilotMonthly:
+        case .codexWeekly, .copilotMonthly, .claudeCodeWeeklyQuota:
             return true
-        case .codexFiveHour, .codexCredits:
+        case .codexFiveHour, .codexCredits, .claudeCodeFiveHour, .claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet:
             return false
         }
     }
@@ -83,6 +100,7 @@ enum MetricUnit: String, Codable, Hashable, Sendable {
     case percentage
     case requests
     case credits
+    case cost
 }
 
 enum ProviderAuthState: String, Codable, Hashable, Sendable {
@@ -179,52 +197,86 @@ enum CodexMenuBarMetric: String, Codable, CaseIterable, Identifiable, Hashable, 
     }
 }
 
+enum ClaudeMenuBarMetric: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
+    case fiveHour
+    case weeklyQuota
+    case dailyCost
+
+    var id: String { rawValue }
+
+    var usageMetricKind: UsageMetricKind {
+        switch self {
+        case .fiveHour:
+            return .claudeCodeFiveHour
+        case .weeklyQuota:
+            return .claudeCodeWeeklyQuota
+        case .dailyCost:
+            return .claudeCodeDailyCost
+        }
+    }
+}
+
 struct DisplayPreferences: Codable, Hashable, Sendable {
     var visibleProviders: Set<ProviderID>
+    var visiblePanelProviders: Set<ProviderID>
     var showAheadNotifications: Bool
     var showBehindNotifications: Bool
     var showCodexResetNotifications: Bool
+    var showClaudeCodeResetNotifications: Bool
     var refreshIntervalMinutes: Int
     var language: AppLanguage
     var codexMenuBarMetric: CodexMenuBarMetric
+    var claudeMenuBarMetric: ClaudeMenuBarMetric
 
     enum CodingKeys: String, CodingKey {
         case visibleProviders
+        case visiblePanelProviders
         case showAheadNotifications
         case showBehindNotifications
         case showCodexResetNotifications
+        case showClaudeCodeResetNotifications
         case refreshIntervalMinutes
         case language
         case codexMenuBarMetric
+        case claudeMenuBarMetric
     }
 
     init(
         visibleProviders: Set<ProviderID>,
+        visiblePanelProviders: Set<ProviderID>,
         showAheadNotifications: Bool,
         showBehindNotifications: Bool,
         showCodexResetNotifications: Bool,
+        showClaudeCodeResetNotifications: Bool,
         refreshIntervalMinutes: Int,
         language: AppLanguage,
-        codexMenuBarMetric: CodexMenuBarMetric
+        codexMenuBarMetric: CodexMenuBarMetric,
+        claudeMenuBarMetric: ClaudeMenuBarMetric
     ) {
         self.visibleProviders = visibleProviders
+        self.visiblePanelProviders = visiblePanelProviders
         self.showAheadNotifications = showAheadNotifications
         self.showBehindNotifications = showBehindNotifications
         self.showCodexResetNotifications = showCodexResetNotifications
+        self.showClaudeCodeResetNotifications = showClaudeCodeResetNotifications
         self.refreshIntervalMinutes = refreshIntervalMinutes
         self.language = language
         self.codexMenuBarMetric = codexMenuBarMetric
+        self.claudeMenuBarMetric = claudeMenuBarMetric
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         visibleProviders = try container.decode(Set<ProviderID>.self, forKey: .visibleProviders)
+        visiblePanelProviders = try container.decodeIfPresent(Set<ProviderID>.self, forKey: .visiblePanelProviders) ?? Set(ProviderID.allCases)
         showAheadNotifications = try container.decode(Bool.self, forKey: .showAheadNotifications)
         showBehindNotifications = try container.decode(Bool.self, forKey: .showBehindNotifications)
         showCodexResetNotifications = try container.decode(Bool.self, forKey: .showCodexResetNotifications)
+        showClaudeCodeResetNotifications = try container.decodeIfPresent(Bool.self, forKey: .showClaudeCodeResetNotifications) ?? true
         refreshIntervalMinutes = try container.decode(Int.self, forKey: .refreshIntervalMinutes)
         language = try container.decode(AppLanguage.self, forKey: .language)
         codexMenuBarMetric = try container.decodeIfPresent(CodexMenuBarMetric.self, forKey: .codexMenuBarMetric) ?? .weekly
+        claudeMenuBarMetric = try container.decodeIfPresent(ClaudeMenuBarMetric.self, forKey: .claudeMenuBarMetric) ?? .fiveHour
     }
 
     func shouldRescheduleRefresh(comparedTo previous: Self) -> Bool {
@@ -233,11 +285,14 @@ struct DisplayPreferences: Codable, Hashable, Sendable {
 
     static let `default` = DisplayPreferences(
         visibleProviders: Set(ProviderID.allCases),
+        visiblePanelProviders: Set(ProviderID.allCases),
         showAheadNotifications: true,
         showBehindNotifications: true,
         showCodexResetNotifications: true,
+        showClaudeCodeResetNotifications: true,
         refreshIntervalMinutes: 5,
         language: .englishUS,
-        codexMenuBarMetric: .weekly
+        codexMenuBarMetric: .weekly,
+        claudeMenuBarMetric: .fiveHour
     )
 }

@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var copilotTokenDraft = ""
     @State private var showCodexLoginSheet = false
     @State private var showCopilotLoginSheet = false
+    @State private var showClaudeCodeLoginSheet = false
     @State private var statusMessage: String?
 
     init(environment: AppEnvironment) {
@@ -69,6 +70,15 @@ struct SettingsView: View {
                 await environment.refreshNow()
             }
         }
+        .sheet(isPresented: $showClaudeCodeLoginSheet) {
+            ClaudeCodeLoginSheet(
+                localizer: environment.localizer,
+                onSaveAdminKey: { key in
+                    try environment.saveClaudeAdminKey(key)
+                    await environment.refreshNow()
+                }
+            )
+        }
     }
 
     private var accountsTab: some View {
@@ -91,6 +101,83 @@ struct SettingsView: View {
                                     statusMessage = nil
                                 } catch {
                                     statusMessage = error.localizedDescription
+                                }
+                            }
+                        }
+                    }
+                }
+
+                providerAccountGroup(provider: .claudeCode) {
+                    // Personal account (OAuth via Claude Code CLI)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(environment.localizer.text(.claudePersonalAccount))
+                            .font(.subheadline.weight(.medium))
+
+                        Text(environment.localizer.text(.claudePersonalAutoAuth))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        HStack {
+                            if environment.claudeOAuthEnabled {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                                Text(environment.localizer.text(.providerStatusOk))
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+
+                                Spacer()
+
+                                Button(environment.localizer.text(.signOut)) {
+                                    environment.disconnectClaudeOAuth()
+                                    statusMessage = nil
+                                }
+                            } else {
+                                Button(environment.localizer.text(.claudeAllowAccess)) {
+                                    if !environment.connectClaudeOAuth() {
+                                        statusMessage = "No Claude Code credentials found. Run `claude` in Terminal to log in."
+                                    } else {
+                                        statusMessage = nil
+                                        Task { await environment.refreshNow() }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Divider()
+
+                    // Organization account (Admin API key)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(environment.localizer.text(.claudeOrganizationAccount))
+                            .font(.subheadline.weight(.medium))
+
+                        Text(environment.localizer.text(.claudeAdminApiKeyHelp))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        HStack {
+                            if environment.claudeAdminKeyConfigured {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                                Text(environment.localizer.text(.providerStatusOk))
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+
+                                Spacer()
+
+                                Button(environment.localizer.text(.claudeRemoveKey)) {
+                                    do {
+                                        try environment.removeClaudeAdminKey()
+                                        statusMessage = nil
+                                    } catch {
+                                        statusMessage = error.localizedDescription
+                                    }
+                                }
+                            } else {
+                                Button(environment.localizer.text(.claudeAdminApiKey)) {
+                                    showClaudeCodeLoginSheet = true
                                 }
                             }
                         }
@@ -170,11 +257,24 @@ struct SettingsView: View {
                         Text(environment.localizer.text(.codexMenuBarMetricFiveHour)).tag(CodexMenuBarMetric.fiveHour)
                     }
                     .pickerStyle(.menu)
+
+                    Picker(environment.localizer.text(.claudeMenuBarMetric), selection: $environment.settings.preferences.claudeMenuBarMetric) {
+                        Text(environment.localizer.text(.claudeMenuBarMetricFiveHour)).tag(ClaudeMenuBarMetric.fiveHour)
+                        Text(environment.localizer.text(.claudeMenuBarMetricWeeklyQuota)).tag(ClaudeMenuBarMetric.weeklyQuota)
+                        Text(environment.localizer.text(.claudeMenuBarMetricDailyCost)).tag(ClaudeMenuBarMetric.dailyCost)
+                    }
+                    .pickerStyle(.menu)
                 }
 
                 settingsSection(title: environment.localizer.text(.menuBarIcons)) {
                     ForEach(ProviderID.allCases) { provider in
                         Toggle(provider.displayName(localizer: environment.localizer), isOn: visibleProviderBinding(provider))
+                    }
+                }
+
+                settingsSection(title: environment.localizer.text(.usagePanelSections)) {
+                    ForEach(ProviderID.allCases) { provider in
+                        Toggle(provider.displayName(localizer: environment.localizer), isOn: visiblePanelProviderBinding(provider))
                     }
                 }
             }
@@ -204,6 +304,13 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Toggle(environment.localizer.text(.notificationsCodexReset), isOn: $environment.settings.preferences.showCodexResetNotifications)
                         Text(environment.localizer.text(.notificationsCodexResetDescription))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Toggle(environment.localizer.text(.notificationsClaudeCodeReset), isOn: $environment.settings.preferences.showClaudeCodeResetNotifications)
+                        Text(environment.localizer.text(.notificationsClaudeCodeResetDescription))
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
@@ -331,6 +438,23 @@ struct SettingsView: View {
                     updated.remove(provider)
                 }
                 environment.settings.preferences.visibleProviders = updated
+            }
+        )
+    }
+
+    private func visiblePanelProviderBinding(_ provider: ProviderID) -> Binding<Bool> {
+        Binding(
+            get: {
+                environment.settings.preferences.visiblePanelProviders.contains(provider)
+            },
+            set: { isVisible in
+                var updated = environment.settings.preferences.visiblePanelProviders
+                if isVisible {
+                    updated.insert(provider)
+                } else {
+                    updated.remove(provider)
+                }
+                environment.settings.preferences.visiblePanelProviders = updated
             }
         )
     }

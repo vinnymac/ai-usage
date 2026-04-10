@@ -38,9 +38,28 @@ struct UsagePanelView: View {
     }
 
     private func metricsSection(referenceDate: Date) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            providerSection(provider: .codex, metrics: [.codexFiveHour, .codexWeekly, .codexCredits], referenceDate: referenceDate)
-            providerSection(provider: .copilot, metrics: [.copilotMonthly], referenceDate: referenceDate)
+        let panelProviders = environment.settings.preferences.visiblePanelProviders
+        return VStack(alignment: .leading, spacing: 18) {
+            if panelProviders.contains(.codex) {
+                providerSection(provider: .codex, metrics: [.codexFiveHour, .codexWeekly, .codexCredits], referenceDate: referenceDate)
+            }
+            if panelProviders.contains(.copilot) {
+                providerSection(provider: .copilot, metrics: [.copilotMonthly], referenceDate: referenceDate)
+            }
+            if panelProviders.contains(.claudeCode) {
+                providerSection(provider: .claudeCode, metrics: claudeCodeVisibleMetrics, referenceDate: referenceDate)
+            }
+        }
+    }
+
+    private var claudeCodeVisibleMetrics: [UsageMetricKind] {
+        let snapshot = environment.snapshot(for: .claudeCode)
+        // Show API path metrics if daily cost has a value, otherwise show session path metrics
+        let hasAPIData = snapshot?.metric(.claudeCodeDailyCost)?.remainingValue != nil
+        if hasAPIData {
+            return [.claudeCodeDailyCost, .claudeCodeWeeklyCost, .claudeCodeSonnet]
+        } else {
+            return [.claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet]
         }
     }
 
@@ -80,8 +99,10 @@ struct UsagePanelView: View {
 
             providerIssue(provider: provider, snapshot: snapshot)
 
-            ForEach(metrics, id: \.self) { kind in
-                metricCard(kind: kind, referenceDate: referenceDate)
+            if environment.currentAuthState(for: provider) != .signedOut {
+                ForEach(metrics, id: \.self) { kind in
+                    metricCard(kind: kind, referenceDate: referenceDate)
+                }
             }
         }
     }
@@ -103,7 +124,7 @@ struct UsagePanelView: View {
                     .monospacedDigit()
             }
 
-            if kind != .codexCredits {
+            if kind != .codexCredits && metric?.unit != .cost {
                 VStack(alignment: .leading, spacing: 4) {
                     RemainingProgressBar(fraction: metric?.remainingFraction)
 
@@ -139,6 +160,16 @@ struct UsagePanelView: View {
             return environment.localizer.text(.codexCredits)
         case .copilotMonthly:
             return environment.localizer.text(.copilotMonthly)
+        case .claudeCodeFiveHour:
+            return environment.localizer.text(.claudeCodeFiveHour)
+        case .claudeCodeWeeklyQuota:
+            return environment.localizer.text(.claudeCodeWeeklyQuota)
+        case .claudeCodeDailyCost:
+            return environment.localizer.text(.claudeCodeDailyCost)
+        case .claudeCodeWeeklyCost:
+            return environment.localizer.text(.claudeCodeWeeklyCost)
+        case .claudeCodeSonnet:
+            return environment.localizer.text(.claudeCodeSonnet)
         }
     }
 
@@ -161,6 +192,12 @@ struct UsagePanelView: View {
         case .credits:
             if let value = metric.remainingValue {
                 return numberFormatter.string(from: NSNumber(value: value)) ?? environment.localizer.text(.unavailable)
+            }
+
+            return "-"
+        case .cost:
+            if let value = metric.remainingValue {
+                return String(format: "$%.2f", value)
             }
 
             return "-"
@@ -213,9 +250,9 @@ struct UsagePanelView: View {
 
     private func missingValueText(for kind: UsageMetricKind) -> String {
         switch kind {
-        case .codexCredits:
+        case .codexCredits, .claudeCodeDailyCost, .claudeCodeWeeklyCost:
             return "-"
-        case .codexFiveHour, .codexWeekly, .copilotMonthly:
+        case .codexFiveHour, .codexWeekly, .copilotMonthly, .claudeCodeFiveHour, .claudeCodeWeeklyQuota, .claudeCodeSonnet:
             return "-%"
         }
     }

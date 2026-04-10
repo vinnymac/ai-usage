@@ -109,6 +109,31 @@ final class NotificationService {
             }
         }
 
+        if preferences.showClaudeCodeResetNotifications {
+            for kind in [UsageMetricKind.claudeCodeFiveHour, .claudeCodeWeeklyQuota] {
+                guard let previous = previousSnapshots[kind.provider]?.metric(kind),
+                      let current = newSnapshots[kind.provider]?.metric(kind),
+                      let previousReset = previous.resetAtUTC,
+                      let currentReset = current.resetAtUTC else {
+                    continue
+                }
+
+                let marker = "\(kind.rawValue)-\(currentReset.ISO8601Format())"
+                let remainingJump = (current.remainingFraction ?? 0) - (previous.remainingFraction ?? 0)
+                let resetMovedForward = currentReset.timeIntervalSince(previousReset) > 15 * 60
+                let happenedEarly = now < previousReset.addingTimeInterval(-5 * 60)
+
+                if happenedEarly && resetMovedForward && remainingJump > 0.25 && resetMarkers.contains(marker) == false {
+                    resetMarkers.insert(marker)
+                    sendNotification(
+                        identifier: "claudecode-reset-\(marker)",
+                        title: "Claude Code reset detected early",
+                        body: "\(humanName(for: kind)) appears to have reset earlier than expected."
+                    )
+                }
+            }
+        }
+
         usageStore.saveAlertStates(alertStates)
         usageStore.saveCodexResetMarkers(resetMarkers)
     }
@@ -154,6 +179,16 @@ final class NotificationService {
             return "Codex credits"
         case .copilotMonthly:
             return "GitHub Copilot monthly quota"
+        case .claudeCodeFiveHour:
+            return "Claude Code 5-hour session"
+        case .claudeCodeWeeklyQuota:
+            return "Claude Code weekly quota"
+        case .claudeCodeDailyCost:
+            return "Claude Code daily cost"
+        case .claudeCodeWeeklyCost:
+            return "Claude Code weekly cost"
+        case .claudeCodeSonnet:
+            return "Claude Code Sonnet usage"
         }
     }
 }
