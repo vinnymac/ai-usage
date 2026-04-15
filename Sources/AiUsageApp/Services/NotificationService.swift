@@ -50,7 +50,7 @@ final class NotificationService {
         now: Date
     ) {
         var alertStates = usageStore.loadAlertStates()
-        var resetMarkers = usageStore.loadCodexResetMarkers()
+        var resetMarkers = usageStore.loadResetMarkers()
 
         for snapshot in newSnapshots.values {
             guard snapshot.fetchState == .ok else {
@@ -84,23 +84,32 @@ final class NotificationService {
             }
         }
 
-        for (isEnabled, metricKinds, identifierPrefix, title) in [
-            (preferences.showCodexResetNotifications, [UsageMetricKind.codexFiveHour, .codexWeekly], "codex-reset", "Codex reset detected early"),
-            (preferences.showClaudeResetNotifications, [.claudeFiveHour, .claudeWeekly], "claude-reset", "Claude Code reset detected early"),
-        ] where isEnabled {
+        if preferences.showCodexResetNotifications {
             processEarlyResetNotifications(
                 previousSnapshots: previousSnapshots,
                 newSnapshots: newSnapshots,
-                metricKinds: metricKinds,
-                identifierPrefix: identifierPrefix,
-                title: title,
+                metricKinds: [UsageMetricKind.codexFiveHour, .codexWeekly],
+                identifierPrefix: "codex-reset",
+                title: "Codex reset detected early",
+                resetMarkers: &resetMarkers,
+                now: now
+            )
+        }
+
+        if preferences.showClaudeResetNotifications {
+            processEarlyResetNotifications(
+                previousSnapshots: previousSnapshots,
+                newSnapshots: newSnapshots,
+                metricKinds: [.claudeFiveHour, .claudeWeekly],
+                identifierPrefix: "claude-reset",
+                title: "Claude Code reset detected early",
                 resetMarkers: &resetMarkers,
                 now: now
             )
         }
 
         usageStore.saveAlertStates(alertStates)
-        usageStore.saveCodexResetMarkers(resetMarkers)
+        usageStore.saveResetMarkers(resetMarkers)
     }
 
     private func sendNotification(identifier: String, title: String, body: String) {

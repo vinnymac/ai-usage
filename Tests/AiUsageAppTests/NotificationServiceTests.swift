@@ -129,6 +129,7 @@ struct NotificationServiceTests {
         #expect(deliveredRequests.count == 1)
         #expect(deliveredRequests.first?.content.title == "Claude Code reset detected early")
         #expect(deliveredRequests.first?.content.body == "Claude 5-hour window appears to have reset earlier than expected.")
+        #expect(UsageStore(defaults: defaults).loadResetMarkers().count == 1)
     }
 
     private static func makeSnapshot(remainingFraction: Double, now: Date, resetAt: Date) -> ProviderSnapshot {
