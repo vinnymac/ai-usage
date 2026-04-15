@@ -20,11 +20,10 @@ enum L10nKey: String {
     case usagePanelBackgroundRegularMaterial
     case usagePanelBackgroundSolidAdaptive
     case codexMenuBarMetric
-    case codexMenuBarMetricWeekly
-    case codexMenuBarMetricFiveHour
     case claudeMenuBarMetric
-    case claudeMenuBarMetricWeekly
-    case claudeMenuBarMetricFiveHour
+    case menuBarMetricWeekly
+    case menuBarMetricFiveHour
+    case menuBarMetricSevenDay
     case menuBarIcons
     case usagePanelProviders
     case notificationsAhead
@@ -34,12 +33,11 @@ enum L10nKey: String {
     case providerCodex
     case providerClaude
     case providerCopilot
-    case codexFiveHour
-    case codexWeekly
-    case codexCredits
-    case claudeFiveHour
-    case claudeWeekly
-    case copilotMonthly
+    case usageLimitFiveHour
+    case usageLimitWeekly
+    case usageLimitSevenDay
+    case usageLimitMonthly
+    case usageMetricCredits
     case resetAt
     case save
     case cancel
@@ -82,12 +80,11 @@ enum L10nKey: String {
     case notificationTitleCodexReset
     case notificationTitleClaudeReset
     case notificationBodyResetFormat
-    case notificationMetricCodexFiveHour
-    case notificationMetricCodexWeekly
-    case notificationMetricCodexCredits
-    case notificationMetricClaudeFiveHour
-    case notificationMetricClaudeWeekly
-    case notificationMetricCopilotMonthly
+    case notificationMetricFiveHourFormat
+    case notificationMetricWeeklyFormat
+    case notificationMetricSevenDayFormat
+    case notificationMetricMonthlyFormat
+    case notificationMetricCreditsFormat
     case copyLogs
     case clearLogs
     case noLogs
@@ -123,6 +120,67 @@ struct Localizer {
         String(format: text(key), locale: language.locale, arguments: arguments)
     }
 
+    func codexMenuBarMetricLabel(_ metric: CodexMenuBarMetric) -> String {
+        switch metric {
+        case .weekly:
+            return text(.menuBarMetricWeekly)
+        case .fiveHour:
+            return text(.menuBarMetricFiveHour)
+        }
+    }
+
+    func claudeMenuBarMetricLabel(_ metric: ClaudeMenuBarMetric) -> String {
+        switch metric {
+        case .weekly:
+            return text(.menuBarMetricSevenDay)
+        case .fiveHour:
+            return text(.menuBarMetricFiveHour)
+        }
+    }
+
+    func metricTitle(for kind: UsageMetricKind) -> String {
+        switch kind {
+        case .codexFiveHour, .claudeFiveHour:
+            return text(.usageLimitFiveHour)
+        case .codexWeekly:
+            return text(.usageLimitWeekly)
+        case .codexCredits:
+            return text(.usageMetricCredits)
+        case .claudeWeekly:
+            return text(.usageLimitSevenDay)
+        case .copilotMonthly:
+            return text(.usageLimitMonthly)
+        }
+    }
+
+    func notificationMetricName(for kind: UsageMetricKind) -> String {
+        let providerName = notificationProviderName(for: kind.provider)
+
+        switch kind {
+        case .codexFiveHour, .claudeFiveHour:
+            return formatted(.notificationMetricFiveHourFormat, providerName)
+        case .codexWeekly:
+            return formatted(.notificationMetricWeeklyFormat, providerName)
+        case .codexCredits:
+            return formatted(.notificationMetricCreditsFormat, providerName)
+        case .claudeWeekly:
+            return formatted(.notificationMetricSevenDayFormat, providerName)
+        case .copilotMonthly:
+            return formatted(.notificationMetricMonthlyFormat, providerName)
+        }
+    }
+
+    private func notificationProviderName(for provider: ProviderID) -> String {
+        switch provider {
+        case .codex:
+            return text(.providerCodex)
+        case .claude:
+            return text(.providerClaude)
+        case .copilot:
+            return text(.providerCopilot)
+        }
+    }
+
     private var english: [L10nKey: String] {
         [
             .menuBarAppName: "AI Usage",
@@ -144,11 +202,10 @@ struct Localizer {
             .usagePanelBackgroundRegularMaterial: "Material",
             .usagePanelBackgroundSolidAdaptive: "Solid color",
             .codexMenuBarMetric: "Codex menu bar percentage",
-            .codexMenuBarMetricWeekly: "Weekly usage",
-            .codexMenuBarMetricFiveHour: "5-hour usage",
             .claudeMenuBarMetric: "Claude menu bar percentage",
-            .claudeMenuBarMetricWeekly: "7-day usage",
-            .claudeMenuBarMetricFiveHour: "5-hour usage",
+            .menuBarMetricWeekly: "Weekly usage",
+            .menuBarMetricFiveHour: "5-hour usage",
+            .menuBarMetricSevenDay: "7-day usage",
             .menuBarIcons: "Menu bar icons",
             .usagePanelProviders: "Usage panel providers",
             .notificationsAhead: "Ahead-of-schedule alerts",
@@ -156,14 +213,13 @@ struct Localizer {
             .notificationsCodexReset: "Codex early reset alerts",
             .notificationsClaudeReset: "Claude Code early reset alerts",
             .providerCodex: "Codex",
-            .providerClaude: "Claude",
+            .providerClaude: "Claude Code",
             .providerCopilot: "GitHub Copilot",
-            .codexFiveHour: "5-hour usage limit",
-            .codexWeekly: "Weekly usage limit",
-            .codexCredits: "Credits",
-            .claudeFiveHour: "5-hour usage limit",
-            .claudeWeekly: "7-day usage limit",
-            .copilotMonthly: "Monthly usage limit",
+            .usageLimitFiveHour: "5-hour usage limit",
+            .usageLimitWeekly: "Weekly usage limit",
+            .usageLimitSevenDay: "7-day usage limit",
+            .usageLimitMonthly: "Monthly usage limit",
+            .usageMetricCredits: "Credits",
             .resetAt: "Reset",
             .save: "Save",
             .cancel: "Cancel",
@@ -206,12 +262,11 @@ struct Localizer {
             .notificationTitleCodexReset: "Codex reset detected early",
             .notificationTitleClaudeReset: "Claude Code reset detected early",
             .notificationBodyResetFormat: "%@ appears to have reset earlier than expected.",
-            .notificationMetricCodexFiveHour: "Codex 5-hour window",
-            .notificationMetricCodexWeekly: "Codex weekly window",
-            .notificationMetricCodexCredits: "Codex credits",
-            .notificationMetricClaudeFiveHour: "Claude Code 5-hour window",
-            .notificationMetricClaudeWeekly: "Claude Code 7-day window",
-            .notificationMetricCopilotMonthly: "GitHub Copilot monthly quota",
+            .notificationMetricFiveHourFormat: "%@ 5-hour window",
+            .notificationMetricWeeklyFormat: "%@ weekly window",
+            .notificationMetricSevenDayFormat: "%@ 7-day window",
+            .notificationMetricMonthlyFormat: "%@ monthly quota",
+            .notificationMetricCreditsFormat: "%@ credits",
             .copyLogs: "Copy logs",
             .clearLogs: "Clear logs",
             .noLogs: "No logs yet",
@@ -249,11 +304,10 @@ struct Localizer {
             .usagePanelBackgroundRegularMaterial: "Materiał",
             .usagePanelBackgroundSolidAdaptive: "Jednolity kolor",
             .codexMenuBarMetric: "Procent Codex na pasku menu",
-            .codexMenuBarMetricWeekly: "Użycie tygodniowe",
-            .codexMenuBarMetricFiveHour: "Użycie 5-godzinne",
             .claudeMenuBarMetric: "Procent Claude na pasku menu",
-            .claudeMenuBarMetricWeekly: "Użycie tygodniowe",
-            .claudeMenuBarMetricFiveHour: "Użycie 5-godzinne",
+            .menuBarMetricWeekly: "Użycie tygodniowe",
+            .menuBarMetricFiveHour: "Użycie 5-godzinne",
+            .menuBarMetricSevenDay: "Użycie 7-dniowe",
             .menuBarIcons: "Ikony na pasku menu",
             .usagePanelProviders: "Usługi w panelu",
             .notificationsAhead: "Alerty: za szybkie zużycie",
@@ -261,14 +315,13 @@ struct Localizer {
             .notificationsCodexReset: "Alerty o wczesnym resecie Codex",
             .notificationsClaudeReset: "Alerty o wczesnym resecie Claude Code",
             .providerCodex: "Codex",
-            .providerClaude: "Claude",
+            .providerClaude: "Claude Code",
             .providerCopilot: "GitHub Copilot",
-            .codexFiveHour: "5-godzinny limit wykorzystania",
-            .codexWeekly: "Tygodniowy limit wykorzystania",
-            .codexCredits: "Kredyty",
-            .claudeFiveHour: "5-godzinny limit wykorzystania",
-            .claudeWeekly: "7-dniowy limit wykorzystania",
-            .copilotMonthly: "Miesięczny limit wykorzystania",
+            .usageLimitFiveHour: "5-godzinny limit wykorzystania",
+            .usageLimitWeekly: "Tygodniowy limit wykorzystania",
+            .usageLimitSevenDay: "7-dniowy limit wykorzystania",
+            .usageLimitMonthly: "Miesięczny limit wykorzystania",
+            .usageMetricCredits: "Kredyty",
             .resetAt: "Reset",
             .save: "Zapisz",
             .cancel: "Anuluj",
@@ -311,12 +364,11 @@ struct Localizer {
             .notificationTitleCodexReset: "Wykryto wcześniejszy reset Codex",
             .notificationTitleClaudeReset: "Wykryto wcześniejszy reset Claude Code",
             .notificationBodyResetFormat: "%@ wygląda na zresetowane wcześniej niż oczekiwano.",
-            .notificationMetricCodexFiveHour: "5-godzinne okno Codex",
-            .notificationMetricCodexWeekly: "Tygodniowe okno Codex",
-            .notificationMetricCodexCredits: "Kredyty Codex",
-            .notificationMetricClaudeFiveHour: "5-godzinne okno Claude Code",
-            .notificationMetricClaudeWeekly: "7-dniowe okno Claude Code",
-            .notificationMetricCopilotMonthly: "Miesięczny limit GitHub Copilot",
+            .notificationMetricFiveHourFormat: "5-godzinne okno %@",
+            .notificationMetricWeeklyFormat: "Tygodniowe okno %@",
+            .notificationMetricSevenDayFormat: "7-dniowe okno %@",
+            .notificationMetricMonthlyFormat: "Miesięczny limit %@",
+            .notificationMetricCreditsFormat: "Kredyty %@",
             .copyLogs: "Kopiuj logi",
             .clearLogs: "Wyczyść logi",
             .noLogs: "Brak logów",

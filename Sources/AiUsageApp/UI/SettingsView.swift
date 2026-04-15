@@ -174,14 +174,14 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
 
                     Picker(environment.localizer.text(.claudeMenuBarMetric), selection: $environment.settings.preferences.claudeMenuBarMetric) {
-                        Text(environment.localizer.text(.claudeMenuBarMetricWeekly)).tag(ClaudeMenuBarMetric.weekly)
-                        Text(environment.localizer.text(.claudeMenuBarMetricFiveHour)).tag(ClaudeMenuBarMetric.fiveHour)
+                        Text(environment.localizer.claudeMenuBarMetricLabel(.weekly)).tag(ClaudeMenuBarMetric.weekly)
+                        Text(environment.localizer.claudeMenuBarMetricLabel(.fiveHour)).tag(ClaudeMenuBarMetric.fiveHour)
                     }
                     .pickerStyle(.menu)
 
                     Picker(environment.localizer.text(.codexMenuBarMetric), selection: $environment.settings.preferences.codexMenuBarMetric) {
-                        Text(environment.localizer.text(.codexMenuBarMetricWeekly)).tag(CodexMenuBarMetric.weekly)
-                        Text(environment.localizer.text(.codexMenuBarMetricFiveHour)).tag(CodexMenuBarMetric.fiveHour)
+                        Text(environment.localizer.codexMenuBarMetricLabel(.weekly)).tag(CodexMenuBarMetric.weekly)
+                        Text(environment.localizer.codexMenuBarMetricLabel(.fiveHour)).tag(CodexMenuBarMetric.fiveHour)
                     }
                     .pickerStyle(.menu)
                 }

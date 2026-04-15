@@ -175,23 +175,6 @@ final class NotificationService {
     }
 
     private func humanName(for kind: UsageMetricKind, localizer: Localizer) -> String {
-        let key: L10nKey
-
-        switch kind {
-        case .codexFiveHour:
-            key = .notificationMetricCodexFiveHour
-        case .codexWeekly:
-            key = .notificationMetricCodexWeekly
-        case .codexCredits:
-            key = .notificationMetricCodexCredits
-        case .claudeFiveHour:
-            key = .notificationMetricClaudeFiveHour
-        case .claudeWeekly:
-            key = .notificationMetricClaudeWeekly
-        case .copilotMonthly:
-            key = .notificationMetricCopilotMonthly
-        }
-
-        return localizer.text(key)
+        localizer.notificationMetricName(for: kind)
     }
 }

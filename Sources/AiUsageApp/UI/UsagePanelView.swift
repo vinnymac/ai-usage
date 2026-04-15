@@ -142,20 +142,7 @@ struct UsagePanelView: View {
     }
 
     private func title(for kind: UsageMetricKind) -> String {
-        switch kind {
-        case .codexFiveHour:
-            return environment.localizer.text(.codexFiveHour)
-        case .codexWeekly:
-            return environment.localizer.text(.codexWeekly)
-        case .codexCredits:
-            return environment.localizer.text(.codexCredits)
-        case .claudeFiveHour:
-            return environment.localizer.text(.claudeFiveHour)
-        case .claudeWeekly:
-            return environment.localizer.text(.claudeWeekly)
-        case .copilotMonthly:
-            return environment.localizer.text(.copilotMonthly)
-        }
+        environment.localizer.metricTitle(for: kind)
     }
 
     private func valueText(for kind: UsageMetricKind, metric: UsageMetric?) -> String {
