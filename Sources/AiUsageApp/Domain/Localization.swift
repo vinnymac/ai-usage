@@ -13,7 +13,12 @@ enum L10nKey: String {
     case authenticationRequired
     case authenticateInSettings
     case generalSection
+    case appearanceSection
+    case menuBarSection
+    case mainPanelSection
     case notificationsSection
+    case usageNotificationsSection
+    case earlyResetNotificationsSection
     case language
     case refreshInterval
     case usagePanelBackground
@@ -24,7 +29,6 @@ enum L10nKey: String {
     case showCodexSparkUsage
     case menuBarMetricWeekly
     case menuBarMetricFiveHour
-    case menuBarMetricSevenDay
     case menuBarIcons
     case usagePanelProviders
     case notificationsAhead
@@ -34,6 +38,8 @@ enum L10nKey: String {
     case providerCodex
     case providerClaude
     case providerCopilot
+    case enabled
+    case percentageShown
     case usageLimitFiveHourCodexSpark
     case usageLimitWeeklyCodexSpark
     case usageLimitFiveHour
@@ -85,7 +91,6 @@ enum L10nKey: String {
     case notificationBodyResetFormat
     case notificationMetricFiveHourFormat
     case notificationMetricWeeklyFormat
-    case notificationMetricSevenDayFormat
     case notificationMetricMonthlyFormat
     case notificationMetricCreditsFormat
     case copyLogs
@@ -135,7 +140,7 @@ struct Localizer {
     func claudeMenuBarMetricLabel(_ metric: ClaudeMenuBarMetric) -> String {
         switch metric {
         case .weekly:
-            return text(.menuBarMetricSevenDay)
+            return text(.menuBarMetricWeekly)
         case .fiveHour:
             return text(.menuBarMetricFiveHour)
         }
@@ -175,7 +180,7 @@ struct Localizer {
         case .codexCredits:
             return formatted(.notificationMetricCreditsFormat, providerName)
         case .claudeWeekly:
-            return formatted(.notificationMetricSevenDayFormat, providerName)
+            return formatted(.notificationMetricWeeklyFormat, providerName)
         case .copilotMonthly:
             return formatted(.notificationMetricMonthlyFormat, providerName)
         }
@@ -206,18 +211,22 @@ struct Localizer {
             .authenticationRequired: "Authentication required",
             .authenticateInSettings: "Open Settings to authenticate providers.",
             .generalSection: "General",
+            .appearanceSection: "Appearance",
+            .menuBarSection: "Menu bar",
+            .mainPanelSection: "Main panel",
             .notificationsSection: "Notifications",
+            .usageNotificationsSection: "Usage notifications",
+            .earlyResetNotificationsSection: "Early reset notifications",
             .language: "Language",
             .refreshInterval: "Refresh interval",
             .usagePanelBackground: "Panel background",
             .usagePanelBackgroundRegularMaterial: "Material",
             .usagePanelBackgroundSolidAdaptive: "Solid color",
             .codexMenuBarMetric: "Codex menu bar percentage",
-            .claudeMenuBarMetric: "Claude menu bar percentage",
+            .claudeMenuBarMetric: "Claude Code menu bar percentage",
             .showCodexSparkUsage: "Show GPT-5.3-Codex-Spark usage",
             .menuBarMetricWeekly: "Weekly usage",
             .menuBarMetricFiveHour: "5-hour usage",
-            .menuBarMetricSevenDay: "7-day usage",
             .menuBarIcons: "Menu bar icons",
             .usagePanelProviders: "Usage panel providers",
             .notificationsAhead: "Ahead-of-schedule alerts",
@@ -227,6 +236,8 @@ struct Localizer {
             .providerCodex: "Codex",
             .providerClaude: "Claude Code",
             .providerCopilot: "GitHub Copilot",
+            .enabled: "Enabled",
+            .percentageShown: "Percentage shown",
             .usageLimitFiveHourCodexSpark: "GPT-5.3-Codex-Spark 5-hour usage limit",
             .usageLimitWeeklyCodexSpark: "GPT-5.3-Codex-Spark weekly usage limit",
             .usageLimitFiveHour: "5-hour usage limit",
@@ -246,7 +257,7 @@ struct Localizer {
             .accountsSection: "Accounts",
             .codexSessionHelp: "Codex uses the local Codex CLI login from `~/.codex/auth.json`. Run `codex login` in Terminal, then refresh.",
             .codexCliConnected: "Detected local Codex CLI auth. Sign out through the Codex CLI if you want to disconnect it.",
-            .claudeSessionHelp: "Claude uses the local Claude Code login from Keychain or `~/.claude/.credentials.json`. Run `claude` in Terminal, then refresh.",
+            .claudeSessionHelp: "Claude Code uses the local Claude Code login from Keychain or `~/.claude/.credentials.json`. Run `claude` in Terminal, then refresh.",
             .claudeCliConnected: "Detected local Claude Code auth. Sign out through Claude Code if you want to disconnect it.",
             .copilotPatHelp: "GitHub Copilot signs in with GitHub device flow and loads usage from GitHub's Copilot API.",
             .copilotDeviceFlowWaiting: "Continue in your browser and enter this GitHub code: %@",
@@ -257,7 +268,7 @@ struct Localizer {
             .openCodexAndSignIn: "Open Codex and sign in, then click Save session.",
             .openGitHubCopilotAndSignIn: "Open GitHub, sign in if needed, then click Save session.",
             .settingsTabAccounts: "Accounts",
-            .settingsTabDisplay: "Display",
+            .settingsTabDisplay: "Appearance",
             .settingsTabNotifications: "Notifications",
             .settingsTabLogs: "Logs",
             .settingsTabAbout: "About",
@@ -278,7 +289,6 @@ struct Localizer {
             .notificationBodyResetFormat: "%@ appears to have reset earlier than expected.",
             .notificationMetricFiveHourFormat: "%@ 5-hour window",
             .notificationMetricWeeklyFormat: "%@ weekly window",
-            .notificationMetricSevenDayFormat: "%@ 7-day window",
             .notificationMetricMonthlyFormat: "%@ monthly quota",
             .notificationMetricCreditsFormat: "%@ credits",
             .copyLogs: "Copy logs",
@@ -311,18 +321,22 @@ struct Localizer {
             .authenticationRequired: "Wymagana autoryzacja",
             .authenticateInSettings: "Otwórz Ustawienia, aby skonfigurować dostęp do usług.",
             .generalSection: "Ogólne",
+            .appearanceSection: "Wygląd",
+            .menuBarSection: "Pasek menu",
+            .mainPanelSection: "Panel główny",
             .notificationsSection: "Powiadomienia",
+            .usageNotificationsSection: "Powiadomienia o użyciu",
+            .earlyResetNotificationsSection: "Powiadomienia o wczesnym resecie",
             .language: "Język",
             .refreshInterval: "Częstotliwość odświeżania",
             .usagePanelBackground: "Tło panelu",
             .usagePanelBackgroundRegularMaterial: "Materiał",
             .usagePanelBackgroundSolidAdaptive: "Jednolity kolor",
             .codexMenuBarMetric: "Procent Codex na pasku menu",
-            .claudeMenuBarMetric: "Procent Claude na pasku menu",
+            .claudeMenuBarMetric: "Procent Claude Code na pasku menu",
             .showCodexSparkUsage: "Pokaż użycie GPT-5.3-Codex-Spark",
             .menuBarMetricWeekly: "Użycie tygodniowe",
             .menuBarMetricFiveHour: "Użycie 5-godzinne",
-            .menuBarMetricSevenDay: "Użycie 7-dniowe",
             .menuBarIcons: "Ikony na pasku menu",
             .usagePanelProviders: "Usługi w panelu",
             .notificationsAhead: "Alerty: za szybkie zużycie",
@@ -332,6 +346,8 @@ struct Localizer {
             .providerCodex: "Codex",
             .providerClaude: "Claude Code",
             .providerCopilot: "GitHub Copilot",
+            .enabled: "Włączone",
+            .percentageShown: "Pokazywany procent",
             .usageLimitFiveHourCodexSpark: "5-godzinny limit wykorzystania GPT-5.3-Codex-Spark",
             .usageLimitWeeklyCodexSpark: "Tygodniowy limit wykorzystania GPT-5.3-Codex-Spark",
             .usageLimitFiveHour: "5-godzinny limit wykorzystania",
@@ -351,7 +367,7 @@ struct Localizer {
             .accountsSection: "Konta",
             .codexSessionHelp: "Codex korzysta z lokalnego logowania Codex CLI z `~/.codex/auth.json`. Uruchom `codex login` w Terminalu, a potem odśwież.",
             .codexCliConnected: "Wykryto lokalne uwierzytelnienie Codex CLI. Wyloguj się z poziomu Codex CLI, jeśli chcesz je odłączyć.",
-            .claudeSessionHelp: "Claude korzysta z lokalnego logowania Claude Code z Keychain lub `~/.claude/.credentials.json`. Uruchom `claude` w Terminalu, a potem odśwież.",
+            .claudeSessionHelp: "Claude Code korzysta z lokalnego logowania Claude Code z Keychain lub `~/.claude/.credentials.json`. Uruchom `claude` w Terminalu, a potem odśwież.",
             .claudeCliConnected: "Wykryto lokalne uwierzytelnienie Claude Code. Wyloguj się z poziomu Claude Code, jeśli chcesz je odłączyć.",
             .copilotPatHelp: "GitHub Copilot loguje się przez GitHub device flow i pobiera użycie z API Copilot w GitHub.",
             .copilotDeviceFlowWaiting: "Kontynuuj w przeglądarce i wpisz ten kod GitHub: %@",
@@ -383,7 +399,6 @@ struct Localizer {
             .notificationBodyResetFormat: "%@ wygląda na zresetowane wcześniej niż oczekiwano.",
             .notificationMetricFiveHourFormat: "5-godzinne okno %@",
             .notificationMetricWeeklyFormat: "Tygodniowe okno %@",
-            .notificationMetricSevenDayFormat: "7-dniowe okno %@",
             .notificationMetricMonthlyFormat: "Miesięczny limit %@",
             .notificationMetricCreditsFormat: "Kredyty %@",
             .copyLogs: "Kopiuj logi",

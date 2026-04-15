@@ -21,8 +21,10 @@ struct LocalizationTests {
         let polish = Localizer(language: .polish)
 
         #expect(english.notificationMetricName(for: .claudeFiveHour) == "Claude Code 5-hour window")
+        #expect(english.notificationMetricName(for: .claudeWeekly) == "Claude Code weekly window")
         #expect(english.notificationMetricName(for: .copilotMonthly) == "GitHub Copilot monthly quota")
         #expect(polish.notificationMetricName(for: .claudeFiveHour) == "5-godzinne okno Claude Code")
+        #expect(polish.notificationMetricName(for: .claudeWeekly) == "Tygodniowe okno Claude Code")
         #expect(polish.notificationMetricName(for: .copilotMonthly) == "Miesięczny limit GitHub Copilot")
     }
 
@@ -32,8 +34,9 @@ struct LocalizationTests {
         let polish = Localizer(language: .polish)
 
         #expect(english.codexMenuBarMetricLabel(.fiveHour) == "5-hour usage")
-        #expect(english.claudeMenuBarMetricLabel(.weekly) == "7-day usage")
+        #expect(english.claudeMenuBarMetricLabel(.weekly) == "Weekly usage")
         #expect(polish.codexMenuBarMetricLabel(.weekly) == "Użycie tygodniowe")
+        #expect(polish.claudeMenuBarMetricLabel(.weekly) == "Użycie tygodniowe")
         #expect(polish.claudeMenuBarMetricLabel(.fiveHour) == "Użycie 5-godzinne")
     }
 }
