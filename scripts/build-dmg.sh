@@ -130,7 +130,22 @@ fi
 sync
 sleep 2
 
-/usr/bin/hdiutil detach "$mount_dir" >/dev/null
+# Finder may hold the volume briefly on CI; retry with escalating patience,
+# then force-eject if retries are exhausted.
+_detach_success=0
+for _detach_attempt in 1 2 3 4 5; do
+  if /usr/bin/hdiutil detach "$mount_dir" >/dev/null 2>&1; then
+    _detach_success=1
+    break
+  fi
+  echo "  Detach attempt $_detach_attempt failed (resource busy), retrying in 3s..." >&2
+  sleep 3
+done
+
+if [[ "$_detach_success" -eq 0 ]]; then
+  echo "  Forcing detach after retries exhausted..." >&2
+  /usr/bin/hdiutil detach "$mount_dir" -force >/dev/null
+fi
 
 # ── Verify app is launchable inside the final DMG ─────────────────────────────
 # Re-use the compressed DMG (after conversion below) for the codesign check
