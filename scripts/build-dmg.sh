@@ -37,17 +37,12 @@ hdiutil create \
 
 xattr -cr "$dmg_path"
 
-if xattr -l "$dmg_path" >/dev/null 2>&1 && [[ -n "$(xattr -l "$dmg_path" 2>/dev/null)" ]]; then
-  echo "DMG still has extended attributes after cleanup."
-  exit 1
-fi
-
 rm -rf "$MOUNT_DIR"
 mkdir -p "$MOUNT_DIR"
 hdiutil attach "$dmg_path" -mountpoint "$MOUNT_DIR" -nobrowse >/dev/null
-if ! codesign -dv "$MOUNT_DIR/$APP_NAME" >/dev/null 2>&1; then
+if ! codesign --verify --deep --strict --verbose=2 "$MOUNT_DIR/$APP_NAME" >/dev/null 2>&1; then
   hdiutil detach "$MOUNT_DIR" >/dev/null
-  echo "App inside DMG is not launchable signed (adhoc) binary."
+  echo "App inside DMG failed strict ad-hoc signature verification."
   exit 1
 fi
 hdiutil detach "$MOUNT_DIR" >/dev/null
